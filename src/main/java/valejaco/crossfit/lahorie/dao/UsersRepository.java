@@ -3,7 +3,7 @@ package valejaco.crossfit.lahorie.dao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import valejaco.crossfit.lahorie.models.User;
 
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UsersRepository extends JpaRepository<User, Long> {
 
-    User findByUserName( String userName );
+    User findByUsername( String username );
 }
