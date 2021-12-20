@@ -22,8 +22,8 @@ public class MyUserDetailsService implements UserDetailsService {
         valejaco.crossfit.lahorie.models.User u1 = usersRepository.findByUsername(username);
         if( u1 != null ) {
             return new User( u1.getUsername() , u1.getPassword() , new ArrayList<>() );
-        }else{
-            return new User( "foo" , "foo" , new ArrayList<>() );
         }
+
+        return null;
     }
 }

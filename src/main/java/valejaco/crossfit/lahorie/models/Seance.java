@@ -1,5 +1,7 @@
 package valejaco.crossfit.lahorie.models;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,16 +9,17 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.math.BigInteger;
 import java.time.Instant;
-import java.util.List;
+import java.util.*;
 
 @Entity
-@Data
 @Getter
 @Setter
+@JsonIdentityInfo( generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Seance {
 
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(unique=true)
     private Long id;
 
     @Column(nullable = false)
@@ -31,8 +34,8 @@ public class Seance {
     private String location;
     private BigInteger coachId;
 
-    @OneToMany
-    private List<User> users;
+    @ManyToMany
+    private Set<User> users = new HashSet<>();
 
     public void addUser( User user) { users.add( user );}
 
