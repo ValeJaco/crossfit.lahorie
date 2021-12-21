@@ -1,14 +1,12 @@
 package valejaco.crossfit.lahorie.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import valejaco.crossfit.lahorie.dao.UsersRepository;
-
-import java.util.ArrayList;
+import valejaco.crossfit.lahorie.models.User;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {
@@ -18,12 +16,6 @@ public class MyUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        valejaco.crossfit.lahorie.models.User u1 = usersRepository.findByUsername(username);
-        if( u1 != null ) {
-            return new User( u1.getUsername() , u1.getPassword() , new ArrayList<>() );
-        }
-
-        return null;
+        return usersRepository.findByUsername(username);
     }
 }

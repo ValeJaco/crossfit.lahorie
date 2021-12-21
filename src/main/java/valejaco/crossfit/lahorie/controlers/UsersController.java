@@ -3,9 +3,16 @@ package valejaco.crossfit.lahorie.controlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import valejaco.crossfit.lahorie.chunk.SeancesRequest;
+import valejaco.crossfit.lahorie.chunk.UsersRequest;
+import valejaco.crossfit.lahorie.dao.RolesRepository;
 import valejaco.crossfit.lahorie.dao.UsersRepository;
+import valejaco.crossfit.lahorie.models.Role;
+import valejaco.crossfit.lahorie.models.Seance;
+import valejaco.crossfit.lahorie.models.User;
+
+import java.util.Optional;
 
 @RestController
 public class UsersController {
@@ -13,9 +20,59 @@ public class UsersController {
     @Autowired
     private UsersRepository usersRepository;
 
-    @RequestMapping("/users")
+    @Autowired
+    private RolesRepository rolesRepository;
+
+    @GetMapping("/users")
     public ResponseEntity<?> getUsersList() {
         return ResponseEntity.ok(usersRepository.findAll());
     }
 
+    @PostMapping("/users")
+    public ResponseEntity<?> createUser(@RequestBody UsersRequest payload) {
+        User newUser = new User();
+        updateAndSaveUser(newUser,payload);
+        return ResponseEntity.ok( newUser );
+    }
+
+    @PatchMapping("/users/{userId}")
+    public ResponseEntity<?> patchUser(@PathVariable Long userId, @RequestBody UsersRequest payload) {
+        Optional<User> user = usersRepository.findById(userId);
+        if (user.isPresent()) {
+            updateAndSaveUser(user.get(),payload);
+            return ResponseEntity.ok( user.get() );
+        }
+
+        return ResponseEntity.badRequest().body( "Error while patchin User " + userId );
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId){
+        usersRepository.deleteById( userId );
+        return ResponseEntity.ok( true );
+    }
+
+    private void updateAndSaveUser(User user, UsersRequest payload){
+        updateRoles( user , payload );
+        user.patchValues(payload);
+        usersRepository.save(user);
+    }
+
+    private void updateRoles( User user , UsersRequest payload ) {
+
+        if( payload.getRoleToAddId().isPresent() ){
+
+            payload.getRoleToAddId().get().forEach( id -> {
+                Optional<Role> roleToAdd = rolesRepository.findById( id );
+                roleToAdd.ifPresent(user::addRoleToUser);
+            });
+        }
+
+        if( payload.getRoleToRemoveId().isPresent() ){
+            payload.getRoleToRemoveId().get().forEach( id -> {
+                Optional<Role> roleToRemove = rolesRepository.findById( id );
+                roleToRemove.ifPresent(user::removeRoleFromUser);
+            });
+        }
+    }
 }

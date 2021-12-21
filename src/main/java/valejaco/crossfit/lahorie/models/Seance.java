@@ -2,12 +2,11 @@ package valejaco.crossfit.lahorie.models;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import valejaco.crossfit.lahorie.chunk.SeancesRequest;
 
 import javax.persistence.*;
-import java.math.BigInteger;
 import java.time.Instant;
 import java.util.*;
 
@@ -32,11 +31,39 @@ public class Seance {
     private Integer duration;
 
     private String location;
-    private BigInteger coachId;
+    private Long coachId;
 
     @ManyToMany
     private Set<User> users = new HashSet<>();
 
-    public void addUser( User user) { users.add( user );}
+    public void addUserToSeance( User user ) { users.add( user );}
+
+    public void removeUserFromSeance( User user) { users.remove( user );}
+
+    public void patchValues( SeancesRequest patch ) {
+
+        if (patch.getName().isPresent()) {
+            this.setName(patch.getName().get());
+        }
+
+        if (patch.getMaxSpot().isPresent()) {
+            this.setMaxSpot(patch.getMaxSpot().get());
+        }
+
+        if (patch.getStartDate().isPresent()) {
+            this.setStartDate(patch.getStartDate().get());
+        }
+        if (patch.getDuration().isPresent()) {
+            this.setDuration(patch.getDuration().get());
+        }
+
+        if (patch.getLocation().isPresent()) {
+            this.setLocation(patch.getLocation().get());
+        }
+
+        if (patch.getCoachId().isPresent()) {
+            this.setCoachId(patch.getCoachId().get());
+        }
+    }
 
 }
