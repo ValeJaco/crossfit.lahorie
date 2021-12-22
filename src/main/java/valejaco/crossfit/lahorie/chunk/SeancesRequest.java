@@ -14,7 +14,7 @@ import java.time.Instant;
 public class SeancesRequest {
 
     private JsonNullable<String> name = JsonNullable.undefined();
-    private JsonNullable<String> maxSpot = JsonNullable.undefined();
+    private JsonNullable<Integer> maxSpot = JsonNullable.undefined();
     private JsonNullable<Instant> startDate = JsonNullable.undefined();
     private JsonNullable<Integer> duration = JsonNullable.undefined();
     private JsonNullable<String> location = JsonNullable.undefined();

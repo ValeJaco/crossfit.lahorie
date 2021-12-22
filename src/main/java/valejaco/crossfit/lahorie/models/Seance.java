@@ -24,7 +24,7 @@ public class Seance {
     @Column(nullable = false)
     private String name;
     @Column(nullable = false)
-    private String maxSpot;
+    private Integer maxSpot;
     @Column(nullable = false)
     private Instant startDate;
     @Column(nullable = false)

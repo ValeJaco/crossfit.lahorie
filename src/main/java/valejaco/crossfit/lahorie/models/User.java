@@ -10,7 +10,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import valejaco.crossfit.lahorie.chunk.UsersRequest;
 
 import javax.persistence.*;
+import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,6 +29,21 @@ public class User implements UserDetails {
 
     @Column(nullable = false, unique = true)
     private String username;
+
+    private String forename;
+    private String lastname;
+    private Instant lastConnectionDate;
+    private Boolean useSessionNotebook;
+    private Integer availableSessionNumber;
+    private String address;
+    private String zipCode;
+    private String city;
+    private Date subscriptionDate;
+    private Date birthDate;
+    private Date renewalDate;
+    private String paymentMethod;
+    private Boolean freeAccess;
+    private String badgeReference;
 
     @JsonIgnore
     @Column(nullable = false)
