@@ -1,6 +1,7 @@
 package valejaco.crossfit.lahorie.controlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import valejaco.crossfit.lahorie.chunk.SeancesRequest;
@@ -33,7 +34,19 @@ public class SeancesController {
 
     @GetMapping("/seances")
     public ResponseEntity<?> getSeancesList() {
-        return ResponseEntity.ok(seancesRepository.findAll());
+        return ResponseEntity.ok(seancesRepository.findAll(Sort.by(Sort.Direction.ASC, "startDate")));
+    }
+
+    @GetMapping("/seances/{seanceId}")
+    public ResponseEntity<?> getSeanceById(@PathVariable Long seanceId) {
+
+        Optional<Seance> seance = seancesRepository.findById( seanceId );
+
+        if( seance.isPresent() ){
+            return ResponseEntity.ok( seance.get() );
+        }
+
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping("/seances")

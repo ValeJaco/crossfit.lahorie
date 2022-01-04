@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import valejaco.crossfit.lahorie.models.User;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -42,9 +43,11 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
+        claims.put( "userId" , user.getId());
+        claims.put( "roles" , user.getRoles());
+        return createToken(claims, user.getUsername());
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -54,9 +57,9 @@ public class JwtUtil {
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails) {
+    public Boolean validateToken(String token, User user) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return (username.equals(user.getUsername()) && !isTokenExpired(token));
     }
 
 }

@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import valejaco.crossfit.lahorie.models.User;
 import valejaco.crossfit.lahorie.services.MyUserDetailsService;
 import valejaco.crossfit.lahorie.util.JwtUtil;
 
@@ -37,12 +38,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                User user = this.userDetailsService.loadUserByUsername(username);
 
-                if (jwtUtil.validateToken(jwt, userDetails)) {
+                if (jwtUtil.validateToken(jwt, user)) {
 
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
+                            user, null, user.getAuthorities());
                     usernamePasswordAuthenticationToken
                             .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);

@@ -28,9 +28,21 @@ public class UsersController {
         return ResponseEntity.ok(usersRepository.findAll());
     }
 
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<?> getUserById(@PathVariable Long userId) {
+        Optional<User> user = usersRepository.findById(userId);
+
+        if( user.isPresent() ){
+            return ResponseEntity.ok( user.get() );
+        }
+
+        return ResponseEntity.badRequest().body( "Error NOT EXISTING User for ID : " + userId );
+    }
+
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody UsersRequest payload) {
         User newUser = new User();
+        newUser.setPassword( "lala");
         updateAndSaveUser(newUser,payload);
         return ResponseEntity.ok( newUser );
     }
@@ -43,7 +55,7 @@ public class UsersController {
             return ResponseEntity.ok( user.get() );
         }
 
-        return ResponseEntity.badRequest().body( "Error while patchin User " + userId );
+        return ResponseEntity.badRequest().body( "Error while patching User " + userId );
     }
 
     @DeleteMapping("/users/{userId}")
@@ -60,18 +72,26 @@ public class UsersController {
 
     private void updateRoles( User user , UsersRequest payload ) {
 
-        if( payload.getRoleToAddId().isPresent() ){
-
-            payload.getRoleToAddId().get().forEach( id -> {
-                Optional<Role> roleToAdd = rolesRepository.findById( id );
-                roleToAdd.ifPresent(user::addRoleToUser);
+        if( payload.getRoles().isPresent() ){
+            user.removeAllRolesFromUser();
+            payload.getRoles().get().forEach( roleName -> {
+                Role roleToAdd = rolesRepository.findByName( roleName );
+                user.addRoleToUser(roleToAdd);
             });
         }
 
         if( payload.getRoleToRemoveId().isPresent() ){
-            payload.getRoleToRemoveId().get().forEach( id -> {
-                Optional<Role> roleToRemove = rolesRepository.findById( id );
-                roleToRemove.ifPresent(user::removeRoleFromUser);
+            payload.getRoleToRemoveId().get().forEach( roleName -> {
+                Role roleToRemove = rolesRepository.findByName( roleName );
+                user.removeRoleFromUser(roleToRemove);
+            });
+        }
+
+        if( payload.getRoleToAddId().isPresent() ){
+
+            payload.getRoleToAddId().get().forEach( roleName -> {
+                Role roleToAdd = rolesRepository.findByName( roleName );
+                user.addRoleToUser(roleToAdd);
             });
         }
     }

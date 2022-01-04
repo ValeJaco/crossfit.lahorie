@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import valejaco.crossfit.lahorie.models.AuthenticationRequest;
 import valejaco.crossfit.lahorie.models.AuthenticationResponse;
+import valejaco.crossfit.lahorie.models.User;
 import valejaco.crossfit.lahorie.services.MyUserDetailsService;
 import valejaco.crossfit.lahorie.util.JwtUtil;
 
@@ -39,8 +40,8 @@ public class HelloResource {
             throw new Exception("Incorrect username or password");
         }
 
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String jwt = jwtTokenUtil.generateToken(userDetails);
+        final User user = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        final String jwt = jwtTokenUtil.generateToken(user);
 
         return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
