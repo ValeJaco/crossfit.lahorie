@@ -2,6 +2,8 @@ package valejaco.crossfit.lahorie.controlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import valejaco.crossfit.lahorie.chunk.SeancesRequest;
@@ -15,6 +17,8 @@ import valejaco.crossfit.lahorie.models.User;
 import valejaco.crossfit.lahorie.models.keys.SeanceWaitingKey;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,8 +37,14 @@ public class SeancesController {
     private UsersRepository usersRepository;
 
     @GetMapping("/seances")
-    public ResponseEntity<?> getSeancesList() {
-        return ResponseEntity.ok(seancesRepository.findAll(Sort.by(Sort.Direction.ASC, "startDate")));
+    public ResponseEntity<?> getSeancesList(@RequestParam(required = false) @DateTimeFormat( pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" ) LocalDateTime startDate) {
+
+        if( startDate != null ) {
+            LocalDateTime maxDate = startDate.plusDays(15);
+            return ResponseEntity.ok(seancesRepository.findAllByStartDateGreaterThanEqualAndStartDateLessThanEqualOrderByStartDateAsc(startDate,maxDate) );
+        }else{
+            return ResponseEntity.ok(seancesRepository.findAll() );
+        }
     }
 
     @GetMapping("/seances/{seanceId}")
@@ -90,7 +100,7 @@ public class SeancesController {
                     SeanceWaiting waitlistEntryToAdd = new SeanceWaiting();
                     waitlistEntryToAdd.setSeanceId(seance.getId());
                     waitlistEntryToAdd.setUserId(patch.getUserToAddId().get());
-                    waitlistEntryToAdd.setSubscriptionTime(Instant.now());
+                    waitlistEntryToAdd.setSubscriptionTime(Date.from(Instant.now()));
                     seancesWaitingRepository.save(waitlistEntryToAdd);
                 }
             }
@@ -100,7 +110,7 @@ public class SeancesController {
             Optional<User> userToRemove = usersRepository.findById( patch.getUserToRemoveId().get() );
             userToRemove.ifPresent(seance::removeUserFromSeance);
 
-            Optional<SeanceWaiting> seanceWaiting = seancesWaitingRepository.findById( new SeanceWaitingKey(seance.getId(),patch.getUserToAddId().get()) );
+            Optional<SeanceWaiting> seanceWaiting = seancesWaitingRepository.findById( new SeanceWaitingKey(seance.getId(),patch.getUserToRemoveId().get()) );
             seanceWaiting.ifPresent(waiting -> seancesWaitingRepository.delete(waiting));
         }
     }

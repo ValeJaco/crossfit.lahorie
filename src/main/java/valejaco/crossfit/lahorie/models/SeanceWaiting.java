@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import java.time.Instant;
+import java.util.Date;
 
 @Entity
 @Getter
@@ -20,6 +21,6 @@ public class SeanceWaiting {
     @Id
     private Long userId;
 
-    private Instant subscriptionTime;
+    private Date subscriptionTime;
 }
 

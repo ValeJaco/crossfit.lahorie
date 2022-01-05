@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import valejaco.crossfit.lahorie.chunk.SeancesRequest;
 
 import javax.persistence.*;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -26,7 +28,7 @@ public class Seance {
     @Column(nullable = false)
     private Integer maxSpot;
     @Column(nullable = false)
-    private Instant startDate;
+    private LocalDateTime startDate;
     @Column(nullable = false)
     private Integer duration;
 

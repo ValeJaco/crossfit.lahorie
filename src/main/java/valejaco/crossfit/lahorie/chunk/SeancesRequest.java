@@ -6,6 +6,8 @@ import org.openapitools.jackson.nullable.JsonNullable;
 import javax.persistence.Column;
 import java.math.BigInteger;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,7 +17,7 @@ public class SeancesRequest {
 
     private JsonNullable<String> name = JsonNullable.undefined();
     private JsonNullable<Integer> maxSpot = JsonNullable.undefined();
-    private JsonNullable<Instant> startDate = JsonNullable.undefined();
+    private JsonNullable<LocalDateTime> startDate = JsonNullable.undefined();
     private JsonNullable<Integer> duration = JsonNullable.undefined();
     private JsonNullable<String> location = JsonNullable.undefined();
     private JsonNullable<Long> coachId = JsonNullable.undefined();

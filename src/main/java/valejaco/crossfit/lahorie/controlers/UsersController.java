@@ -3,6 +3,7 @@ package valejaco.crossfit.lahorie.controlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import valejaco.crossfit.lahorie.chunk.SeancesRequest;
 import valejaco.crossfit.lahorie.chunk.UsersRequest;
@@ -23,6 +24,9 @@ public class UsersController {
     @Autowired
     private RolesRepository rolesRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @GetMapping("/users")
     public ResponseEntity<?> getUsersList() {
         return ResponseEntity.ok(usersRepository.findAll());
@@ -42,7 +46,7 @@ public class UsersController {
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody UsersRequest payload) {
         User newUser = new User();
-        newUser.setPassword( "lala");
+        newUser.setPassword( passwordEncoder.encode("lala" ));
         updateAndSaveUser(newUser,payload);
         return ResponseEntity.ok( newUser );
     }

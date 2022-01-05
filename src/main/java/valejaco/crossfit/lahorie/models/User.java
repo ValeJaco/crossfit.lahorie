@@ -1,21 +1,18 @@
 package valejaco.crossfit.lahorie.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import valejaco.crossfit.lahorie.chunk.UsersRequest;
-import valejaco.crossfit.lahorie.dao.RolesRepository;
 
 import javax.persistence.*;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,18 +32,15 @@ public class User implements UserDetails {
     private String username;
     private String forename;
     private String lastname;
-    private Instant lastConnectionDate;
+    private LocalDateTime lastConnectionDate;
     private Boolean useSessionNotebook;
     private Integer availableSessionNumber;
     private String address;
     private String zipCode;
     private String city;
-    @Temporal(TemporalType.DATE)
-    private Date subscriptionDate;
-    @Temporal(TemporalType.DATE)
-    private Date birthDate;
-    @Temporal(TemporalType.DATE)
-    private Date renewalDate;
+    private LocalDate subscriptionDate;
+    private LocalDate birthDate;
+    private LocalDate renewalDate;
     private String paymentMethod;
     private Boolean freeAccess;
     private String badgeReference;
@@ -100,9 +94,6 @@ public class User implements UserDetails {
         }
         if (patch.getFreeAccess().isPresent()){
             this.setFreeAccess(patch.getFreeAccess().get());
-        }
-        if (patch.getLastConnectionDate().isPresent()){
-            this.setLastname(patch.getLastname().get());
         }
         if (patch.getLastname().isPresent()){
             this.setLastname(patch.getLastname().get());
