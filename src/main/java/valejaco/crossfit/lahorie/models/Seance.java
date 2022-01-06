@@ -4,11 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 import valejaco.crossfit.lahorie.chunk.SeancesRequest;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -38,8 +36,14 @@ public class Seance {
     @ManyToMany
     private Set<User> users = new HashSet<>();
 
-    public void addUserToSeance( User user ) { users.add( user );}
+    @OneToMany()
+    @JoinColumn(name="seanceId")
+    private Set<UserWaiting> usersWaiting = new HashSet<>();
 
+    public void addUserToWaitingSeance( UserWaiting userWaiting ) { usersWaiting.add( userWaiting );}
+    public void removeUserFromWaitingSeance( UserWaiting userWaiting ) { usersWaiting.remove( userWaiting );}
+
+    public void addUserToSeance( User user ) { users.add( user );}
     public void removeUserFromSeance( User user) { users.remove( user );}
 
     public void patchValues( SeancesRequest patch ) {

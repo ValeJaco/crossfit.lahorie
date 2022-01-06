@@ -1,24 +1,19 @@
 package valejaco.crossfit.lahorie.controlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import valejaco.crossfit.lahorie.chunk.SeancesRequest;
 import valejaco.crossfit.lahorie.dao.GuestsSubscriptionRepository;
 import valejaco.crossfit.lahorie.dao.SeancesRepository;
-import valejaco.crossfit.lahorie.dao.SeancesWaitingRepository;
 import valejaco.crossfit.lahorie.dao.UsersRepository;
+import valejaco.crossfit.lahorie.dao.UsersWaitingRepository;
 import valejaco.crossfit.lahorie.models.Seance;
-import valejaco.crossfit.lahorie.models.SeanceWaiting;
 import valejaco.crossfit.lahorie.models.User;
-import valejaco.crossfit.lahorie.models.keys.SeanceWaitingKey;
+import valejaco.crossfit.lahorie.models.UserWaiting;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -28,97 +23,121 @@ public class SeancesController {
     private SeancesRepository seancesRepository;
 
     @Autowired
-    private SeancesWaitingRepository seancesWaitingRepository;
-
-    @Autowired
     private GuestsSubscriptionRepository guestsSubscriptionRepository;
 
     @Autowired
     private UsersRepository usersRepository;
 
-    @GetMapping("/seances")
-    public ResponseEntity<?> getSeancesList(@RequestParam(required = false) @DateTimeFormat( pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" ) LocalDateTime startDate) {
+    @Autowired
+    private UsersWaitingRepository usersWaitingRepository;
 
-        if( startDate != null ) {
-            LocalDateTime maxDate = startDate.plusDays(15);
-            return ResponseEntity.ok(seancesRepository.findAllByStartDateGreaterThanEqualAndStartDateLessThanEqualOrderByStartDateAsc(startDate,maxDate) );
-        }else{
-            return ResponseEntity.ok(seancesRepository.findAll() );
+    @GetMapping("/seances")
+    public ResponseEntity<?> getSeancesList(
+            @RequestParam(required = false ) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") LocalDateTime startDate,
+            @RequestParam(required = false, defaultValue = "15") Long daysToAdd) {
+
+        if (startDate != null) {
+            LocalDateTime maxDate = startDate.plusDays(daysToAdd);
+            return ResponseEntity.ok(seancesRepository.findAllByStartDateGreaterThanEqualAndStartDateLessThanEqualOrderByStartDateAsc(startDate, maxDate));
+        } else {
+            return ResponseEntity.ok(seancesRepository.findAll());
         }
     }
 
     @GetMapping("/seances/{seanceId}")
     public ResponseEntity<?> getSeanceById(@PathVariable Long seanceId) {
 
-        Optional<Seance> seance = seancesRepository.findById( seanceId );
+        Optional<Seance> seance = seancesRepository.findById(seanceId);
 
-        if( seance.isPresent() ){
-            return ResponseEntity.ok( seance.get() );
+        if (seance.isPresent()) {
+            return ResponseEntity.ok(seance.get());
         }
 
         return ResponseEntity.notFound().build();
     }
 
     @PostMapping("/seances")
-    public ResponseEntity<?> createSeance( @RequestBody SeancesRequest payload ) {
+    public ResponseEntity<?> createSeance(@RequestBody SeancesRequest payload) {
 
         Seance seance = new Seance();
-        return ResponseEntity.ok( updateAndSaveSeance( seance , payload ) );
+        return ResponseEntity.ok(updateAndSaveSeance(seance, payload));
     }
 
     @PatchMapping("/seances/{seanceId}")
-    public ResponseEntity<?> patchSeance( @PathVariable Long seanceId , @RequestBody SeancesRequest payload ) {
-        Optional<Seance> seance = seancesRepository.findById( seanceId );
+    public ResponseEntity<?> patchSeance(@PathVariable Long seanceId, @RequestBody SeancesRequest payload) {
+        Optional<Seance> seance = seancesRepository.findById(seanceId);
 
-        if( seance.isPresent() ){
-            return ResponseEntity.ok( updateAndSaveSeance( seance.get() , payload ) );
+        if (seance.isPresent()) {
+            return ResponseEntity.ok(updateAndSaveSeance(seance.get(), payload));
         }
 
-        return ResponseEntity.badRequest().body( "Error while updating Seance " + seanceId );
+        return ResponseEntity.badRequest().body("Error while updating Seance " + seanceId);
     }
 
-    private Seance updateAndSaveSeance(Seance seance, SeancesRequest payload){
-        updateUsers( seance , payload );
-        seance.patchValues( payload );
+    private Seance updateAndSaveSeance(Seance seance, SeancesRequest payload) {
+        updateUsers(seance, payload);
+        seance.patchValues(payload);
         return seancesRepository.save(seance);
     }
 
-    private void updateUsers( Seance seance , SeancesRequest patch ) {
+    private void updateUsers(Seance seance, SeancesRequest patch) {
 
-        if( patch.getUserToAddId().isPresent() ){
+        if (patch.getUserToAddId().isPresent()) {
 
-            if( getFreeSpotNumber(seance) < seance.getMaxSpot() ){
-                Optional<User> userToAdd = usersRepository.findById( patch.getUserToAddId().get() );
+            if (getFreeSpotNumber(seance) < seance.getMaxSpot()) {
+                Optional<User> userToAdd = usersRepository.findById(patch.getUserToAddId().get());
                 userToAdd.ifPresent(seance::addUserToSeance);
-            }else{
+            } else {
 
-                Optional<SeanceWaiting> seanceWaiting = seancesWaitingRepository.findById( new SeanceWaitingKey(seance.getId(),patch.getUserToAddId().get()) );
-                boolean isUserAlreadySubscribed = seance.getUsers().stream().map(User::getId).filter(aLong -> Objects.equals(aLong, patch.getUserToAddId().get())).toArray().length > 0;
-
-                // If not subscribed to session + not in waiting list
-                if( seanceWaiting.isEmpty() && !isUserAlreadySubscribed ) {
-                    SeanceWaiting waitlistEntryToAdd = new SeanceWaiting();
-                    waitlistEntryToAdd.setSeanceId(seance.getId());
-                    waitlistEntryToAdd.setUserId(patch.getUserToAddId().get());
-                    waitlistEntryToAdd.setSubscriptionTime(Date.from(Instant.now()));
-                    seancesWaitingRepository.save(waitlistEntryToAdd);
-                }
+                this.subscribeToWaitingList(seance, patch.getUserToAddId().get());
             }
         }
 
-        if( patch.getUserToRemoveId().isPresent() ){
-            Optional<User> userToRemove = usersRepository.findById( patch.getUserToRemoveId().get() );
+        if (patch.getUserToRemoveId().isPresent()) {
+            Optional<User> userToRemove = usersRepository.findById(patch.getUserToRemoveId().get());
             userToRemove.ifPresent(seance::removeUserFromSeance);
 
-            Optional<SeanceWaiting> seanceWaiting = seancesWaitingRepository.findById( new SeanceWaitingKey(seance.getId(),patch.getUserToRemoveId().get()) );
-            seanceWaiting.ifPresent(waiting -> seancesWaitingRepository.delete(waiting));
+            try {
+                this.unsubscribeFromWaitingList(seance, patch.getUserToRemoveId().get());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
-    private Integer getFreeSpotNumber( Seance seance ) {
+    private void unsubscribeFromWaitingList(Seance seance, Long userId) {
+        Optional<UserWaiting> userToUnsubscribe = seance.getUsersWaiting().stream()
+                .filter(userWaiting -> Objects.equals(userWaiting.getUserId(), userId))
+                .findFirst();
+
+        userToUnsubscribe.ifPresent(seance::removeUserFromWaitingSeance);
+        userToUnsubscribe.ifPresent(
+                userWaiting -> usersWaitingRepository
+                        .delete(userWaiting)
+        );
+    }
+
+    private void subscribeToWaitingList(Seance seance, Long userId) {
+
+        boolean isUserAlreadySubscribed = seance.getUsers().stream().map(User::getId).filter(aLong -> Objects.equals(aLong, userId)).toArray().length > 0;
+
+        if (!isUserAlreadySubscribed) {
+
+            UserWaiting waitlistEntryToAdd = new UserWaiting();
+            waitlistEntryToAdd.setSeanceId(seance.getId());
+            waitlistEntryToAdd.setUserId(userId);
+            waitlistEntryToAdd.setSubscriptionTime(LocalDateTime.now());
+            usersWaitingRepository.save(waitlistEntryToAdd);
+
+            seance.addUserToWaitingSeance(waitlistEntryToAdd);
+        }
+    }
+
+    private Integer getFreeSpotNumber(Seance seance) {
 
         Integer nbUser = seance.getUsers().size();
-        Integer nbGuest = guestsSubscriptionRepository.guestNumberFromSeance( seance.getId() ).orElse( 0 );
+        Integer nbGuest = guestsSubscriptionRepository.guestNumberFromSeance(seance.getId()).orElse(0);
         return nbUser + nbGuest;
     }
 
