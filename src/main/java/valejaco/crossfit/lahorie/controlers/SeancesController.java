@@ -4,11 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import valejaco.crossfit.lahorie.chunk.GuestsRequest;
 import valejaco.crossfit.lahorie.chunk.SeancesRequest;
 import valejaco.crossfit.lahorie.dao.GuestsSubscriptionRepository;
 import valejaco.crossfit.lahorie.dao.SeancesRepository;
 import valejaco.crossfit.lahorie.dao.UsersRepository;
 import valejaco.crossfit.lahorie.dao.UsersWaitingRepository;
+import valejaco.crossfit.lahorie.models.GuestSubscription;
 import valejaco.crossfit.lahorie.models.Seance;
 import valejaco.crossfit.lahorie.models.User;
 import valejaco.crossfit.lahorie.models.UserWaiting;
@@ -56,6 +58,57 @@ public class SeancesController {
         return ResponseEntity.notFound().build();
     }
 
+    @PostMapping("/seances/guests")
+    public ResponseEntity<?> addGuestToSeance( @RequestBody GuestsRequest payload) {
+
+        GuestSubscription guestSub = new GuestSubscription();
+
+        if( payload.getSeanceId().isPresent() ){
+            Optional<Seance> seance = seancesRepository.findById( payload.getSeanceId().get() );
+            guestSub.patchValues(payload);
+            seance.ifPresent(updatedSeance -> updatedSeance.addGuestToSeance(guestSub) );
+            seance.ifPresent(updatedSeance -> seancesRepository.save(updatedSeance) );
+            return ResponseEntity.ok(seance);
+        }
+
+        return ResponseEntity.badRequest().body("Error while creating guestSubscription");
+    }
+
+    @PatchMapping("/seances/guests/{guestSubId}")
+    public ResponseEntity<?> PatchGuest(@PathVariable Long guestSubId, @RequestBody GuestsRequest payload) {
+
+        Optional<GuestSubscription> guestSub = guestsSubscriptionRepository.findById(guestSubId);
+
+        if (guestSub.isPresent()) {
+            guestsSubscriptionRepository.save(guestSub.get());
+            return ResponseEntity.ok(guestSub.get());
+        }
+        return ResponseEntity.badRequest().body("Error while updating guestSubscription " + guestSubId);
+    }
+
+    @DeleteMapping("/seances/guests/{guestSubId}")
+    public ResponseEntity<?> RemoveGuestFromSeance(@PathVariable Long guestSubId) {
+
+        Optional<GuestSubscription> guestSub = guestsSubscriptionRepository.findById(guestSubId);
+
+        if (guestSub.isPresent()) {
+            Optional<Seance> seance = seancesRepository.findById( guestSub.get().getSeanceId() );
+
+            if( seance.isPresent() ){
+                Optional<GuestSubscription> guestToUnsubscribe = seance.get().getGuests().stream()
+                        .filter(guest -> Objects.equals(guest.getId(), guestSubId))
+                        .findFirst();
+
+                if( guestToUnsubscribe.isPresent() ) {
+                    seance.ifPresent(updatedSeance -> updatedSeance.removeGuestFromSeance(guestToUnsubscribe.get()));
+                    seance.ifPresent(updatedSeance -> seancesRepository.save(updatedSeance));
+                    return ResponseEntity.ok(seance);
+                }
+            }
+        }
+        return ResponseEntity.badRequest().body("Error while deleting guestSubscription " + guestSubId);
+    }
+
     @PostMapping("/seances")
     public ResponseEntity<?> createSeance(@RequestBody SeancesRequest payload) {
 
@@ -70,7 +123,17 @@ public class SeancesController {
         if (seance.isPresent()) {
             return ResponseEntity.ok(updateAndSaveSeance(seance.get(), payload));
         }
+        return ResponseEntity.badRequest().body("Error while updating Seance " + seanceId);
+    }
 
+    @DeleteMapping("/seances/{seanceId}")
+    public ResponseEntity<?> deleteSeance(@PathVariable Long seanceId) {
+        Optional<Seance> seance = seancesRepository.findById(seanceId);
+
+        if (seance.isPresent()) {
+            seancesRepository.delete(seance.get());
+            return ResponseEntity.ok( "Seance with ID : " + seanceId + " deleting");
+        }
         return ResponseEntity.badRequest().body("Error while updating Seance " + seanceId);
     }
 
@@ -137,7 +200,7 @@ public class SeancesController {
     private Integer getFreeSpotNumber(Seance seance) {
 
         Integer nbUser = seance.getUsers().size();
-        Integer nbGuest = guestsSubscriptionRepository.guestNumberFromSeance(seance.getId()).orElse(0);
+        Integer nbGuest = guestsSubscriptionRepository.countBySeanceId(seance.getId()).orElse(0);
         return nbUser + nbGuest;
     }
 

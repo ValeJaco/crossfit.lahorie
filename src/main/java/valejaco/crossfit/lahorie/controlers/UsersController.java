@@ -5,12 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import valejaco.crossfit.lahorie.chunk.SeancesRequest;
 import valejaco.crossfit.lahorie.chunk.UsersRequest;
 import valejaco.crossfit.lahorie.dao.RolesRepository;
 import valejaco.crossfit.lahorie.dao.UsersRepository;
 import valejaco.crossfit.lahorie.models.Role;
-import valejaco.crossfit.lahorie.models.Seance;
 import valejaco.crossfit.lahorie.models.User;
 
 import java.util.Optional;
@@ -30,6 +28,14 @@ public class UsersController {
     @GetMapping("/users")
     public ResponseEntity<?> getUsersList() {
         return ResponseEntity.ok(usersRepository.findAll());
+    }
+
+    @GetMapping("/usersByName")
+    public ResponseEntity<?> getUsersListByName(
+            @RequestParam String searchedName,
+            @RequestParam(required = false, defaultValue = "20") Long resultSize) {
+
+        return ResponseEntity.ok(usersRepository.searchUsersByName(searchedName).stream().limit(resultSize));
     }
 
     @GetMapping("/users/{userId}")

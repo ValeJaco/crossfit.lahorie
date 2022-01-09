@@ -34,17 +34,35 @@ public class Seance {
     private Long coachId;
 
     @ManyToMany
+    @OrderBy("forename, lastname ASC")
     private Set<User> users = new HashSet<>();
 
-    @OneToMany()
-    @JoinColumn(name="seanceId")
+    public void addUserToSeance( User user ) { users.add( user );}
+    public void removeUserFromSeance( User user) { users.remove( user );}
+
+    @OrderBy("subscriptionTime ASC")
+    @OneToMany(
+            mappedBy = "seanceId",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @PrimaryKeyJoinColumn(name="seanceId", referencedColumnName="seanceId")
     private Set<UserWaiting> usersWaiting = new HashSet<>();
 
     public void addUserToWaitingSeance( UserWaiting userWaiting ) { usersWaiting.add( userWaiting );}
     public void removeUserFromWaitingSeance( UserWaiting userWaiting ) { usersWaiting.remove( userWaiting );}
 
-    public void addUserToSeance( User user ) { users.add( user );}
-    public void removeUserFromSeance( User user) { users.remove( user );}
+    @OrderBy("guestName ASC")
+    @OneToMany(
+            mappedBy = "seanceId",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @PrimaryKeyJoinColumn(name="seanceId", referencedColumnName="seanceId")
+    private Set<GuestSubscription> guests = new HashSet<>();
+
+    public void addGuestToSeance( GuestSubscription guest ) { guests.add( guest );}
+    public void removeGuestFromSeance( GuestSubscription guest) { guests.remove( guest );}
 
     public void patchValues( SeancesRequest patch ) {
 

@@ -3,11 +3,7 @@ package valejaco.crossfit.lahorie.chunk;
 import lombok.*;
 import org.openapitools.jackson.nullable.JsonNullable;
 
-import javax.persistence.Column;
-import java.math.BigInteger;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @NoArgsConstructor
 @AllArgsConstructor

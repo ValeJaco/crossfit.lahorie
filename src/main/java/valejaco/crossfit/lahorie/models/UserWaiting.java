@@ -19,6 +19,8 @@ public class UserWaiting {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
+
+    @JoinColumn(name="seanceId")
     private Long seanceId;
     private Long userId;
     private LocalDateTime subscriptionTime;

@@ -8,6 +8,5 @@ import java.util.Optional;
 
 public interface GuestsSubscriptionRepository extends JpaRepository<GuestSubscription,Long> {
 
-    @Query("SELECT SUM(guestNumber) FROM GuestSubscription WHERE seanceId = ?1 ")
-    Optional<Integer> guestNumberFromSeance(Long seanceId );
+    Optional<Integer> countBySeanceId(Long seanceId );
 }

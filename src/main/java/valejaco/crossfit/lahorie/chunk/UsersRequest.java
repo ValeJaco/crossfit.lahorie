@@ -7,12 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.openapitools.jackson.nullable.JsonNullable;
 
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @NoArgsConstructor
