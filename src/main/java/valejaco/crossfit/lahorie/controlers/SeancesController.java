@@ -1,5 +1,6 @@
 package valejaco.crossfit.lahorie.controlers;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import valejaco.crossfit.lahorie.models.User;
 import valejaco.crossfit.lahorie.models.UserWaiting;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -34,7 +36,8 @@ public class SeancesController {
     private UsersWaitingRepository usersWaitingRepository;
 
     @GetMapping("/seances")
-    public ResponseEntity<?> getSeancesList(
+    @JsonUnwrapped
+    public ResponseEntity<List<Seance>> getSeancesList(
             @RequestParam(required = false ) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") LocalDateTime startDate,
             @RequestParam(required = false, defaultValue = "15") Long daysToAdd) {
 

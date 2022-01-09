@@ -33,7 +33,7 @@ public class Seance {
     private String location;
     private Long coachId;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @OrderBy("forename, lastname ASC")
     private Set<User> users = new HashSet<>();
 

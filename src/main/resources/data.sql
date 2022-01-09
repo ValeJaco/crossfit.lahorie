@@ -44,6 +44,10 @@ INSERT INTO SEANCE_USERS values ( 6 , 5 );
 INSERT INTO SEANCE_USERS values ( 6 , 4 );
 INSERT INTO SEANCE_USERS values ( 6 , 6 );
 INSERT INTO SEANCE_USERS values ( 6 , 12 );
+INSERT INTO SEANCE_USERS values ( 3 , 5 );
+INSERT INTO SEANCE_USERS values ( 3 , 11 );
+INSERT INTO SEANCE_USERS values ( 2 , 11 );
+INSERT INTO SEANCE_USERS values ( 1 , 12 );
 
 INSERT INTO GUEST_SUBSCRIPTION ( ID , SEANCE_ID , GUEST_NAME , COACH_NAME , COMMENT ) values ( null , 6 , 'Guest 1' , 'Coach X' , 'comment 1' );
 INSERT INTO GUEST_SUBSCRIPTION ( ID , SEANCE_ID , GUEST_NAME , COACH_NAME , COMMENT ) values ( null , 6 , 'Guest 2' , 'Coach Y' , 'comment 2' );
