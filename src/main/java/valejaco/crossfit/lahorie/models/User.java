@@ -12,7 +12,7 @@ import valejaco.crossfit.lahorie.chunk.UsersRequest;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -32,7 +32,7 @@ public class User implements UserDetails {
     private String username;
     private String forename;
     private String lastname;
-    private LocalDateTime lastConnectionDate;
+    private OffsetDateTime lastConnectionDate;
     private Boolean useSessionNotebook;
     private Integer availableSessionNumber;
     private String address;

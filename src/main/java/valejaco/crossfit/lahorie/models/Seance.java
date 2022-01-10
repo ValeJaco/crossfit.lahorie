@@ -1,15 +1,12 @@
 package valejaco.crossfit.lahorie.models;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
 import valejaco.crossfit.lahorie.chunk.SeancesRequest;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Entity
@@ -27,7 +24,7 @@ public class Seance {
     @Column(nullable = false)
     private Integer maxSpot;
     @Column(nullable = false)
-    private LocalDateTime startDate;
+    private OffsetDateTime startDate;
     @Column(nullable = false)
     private Integer duration;
 
@@ -71,22 +68,18 @@ public class Seance {
         if (patch.getName().isPresent()) {
             this.setName(patch.getName().get());
         }
-
         if (patch.getMaxSpot().isPresent()) {
             this.setMaxSpot(patch.getMaxSpot().get());
         }
-
         if (patch.getStartDate().isPresent()) {
             this.setStartDate(patch.getStartDate().get());
         }
         if (patch.getDuration().isPresent()) {
             this.setDuration(patch.getDuration().get());
         }
-
         if (patch.getLocation().isPresent()) {
             this.setLocation(patch.getLocation().get());
         }
-
         if (patch.getCoachId().isPresent()) {
             this.setCoachId(patch.getCoachId().get());
         }

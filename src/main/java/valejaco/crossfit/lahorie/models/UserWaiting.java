@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Entity
 @Getter
@@ -23,5 +23,5 @@ public class UserWaiting {
     @JoinColumn(name="seanceId")
     private Long seanceId;
     private Long userId;
-    private LocalDateTime subscriptionTime;
+    private OffsetDateTime subscriptionTime;
 }
