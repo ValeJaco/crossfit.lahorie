@@ -2,6 +2,7 @@ package valejaco.crossfit.lahorie.models;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +21,6 @@ import java.util.stream.Collectors;
 @Entity
 @Getter
 @Setter
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class User implements UserDetails {
 
     @Id
@@ -53,8 +53,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @JsonIgnore
     @ManyToMany(mappedBy = "users")
+    @JsonIgnoreProperties("users")
     private Set<Seance> seances = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)

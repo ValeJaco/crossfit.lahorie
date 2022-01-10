@@ -36,7 +36,6 @@ public class SeancesController {
     private UsersWaitingRepository usersWaitingRepository;
 
     @GetMapping("/seances")
-    @JsonUnwrapped
     public ResponseEntity<List<Seance>> getSeancesList(
             @RequestParam(required = false ) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'") LocalDateTime startDate,
             @RequestParam(required = false, defaultValue = "15") Long daysToAdd) {

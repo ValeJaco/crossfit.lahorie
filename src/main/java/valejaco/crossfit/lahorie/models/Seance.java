@@ -1,6 +1,8 @@
 package valejaco.crossfit.lahorie.models;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +15,6 @@ import java.util.*;
 @Entity
 @Getter
 @Setter
-@JsonIdentityInfo( generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class Seance {
 
     @Id
@@ -35,6 +36,7 @@ public class Seance {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @OrderBy("forename, lastname ASC")
+    @JsonIgnoreProperties("seances")
     private Set<User> users = new HashSet<>();
 
     public void addUserToSeance( User user ) { users.add( user );}
