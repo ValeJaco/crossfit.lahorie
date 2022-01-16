@@ -1,6 +1,7 @@
 package valejaco.crossfit.lahorie.controlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,16 +35,27 @@ public class SeancesController {
     @Autowired
     private UsersWaitingRepository usersWaitingRepository;
 
+    @GetMapping("/incomingSeances/{userId}")
+    public ResponseEntity<?> getIncommingSeancesForUser(@PathVariable Long userId) {
+        List<Seance> seanceList = seancesRepository.findByStartDateGreaterThanEqualAndUsers_IdOrderByStartDateAsc(OffsetDateTime.now(), userId);
+        return ResponseEntity.ok(seanceList);
+    }
+
+    @GetMapping("/allSeances/{userId}")
+    public ResponseEntity<?> getAllSeancesForUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(seancesRepository.findByUsers_IdOrderByStartDateAsc(userId));
+    }
+
     @GetMapping("/seances")
     public ResponseEntity<List<Seance>> getSeancesList(
-            @RequestParam(required = false ) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSz") OffsetDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSz") OffsetDateTime startDate,
             @RequestParam(required = false, defaultValue = "15") Long daysToAdd) {
 
         if (startDate != null) {
             OffsetDateTime maxDate = startDate.plusDays(daysToAdd);
             return ResponseEntity.ok(seancesRepository.findAllByStartDateGreaterThanEqualAndStartDateLessThanEqualOrderByStartDateAsc(startDate, maxDate));
         } else {
-            return ResponseEntity.ok(seancesRepository.findAll());
+            return ResponseEntity.ok(seancesRepository.findAll((Sort.by(Sort.Direction.ASC, "startDate"))));
         }
     }
 
@@ -60,15 +72,15 @@ public class SeancesController {
     }
 
     @PostMapping("/seances/guests")
-    public ResponseEntity<?> addGuestToSeance( @RequestBody GuestsRequest payload) {
+    public ResponseEntity<?> addGuestToSeance(@RequestBody GuestsRequest payload) {
 
         GuestSubscription guestSub = new GuestSubscription();
 
-        if( payload.getSeanceId().isPresent() ){
-            Optional<Seance> seance = seancesRepository.findById( payload.getSeanceId().get() );
+        if (payload.getSeanceId().isPresent()) {
+            Optional<Seance> seance = seancesRepository.findById(payload.getSeanceId().get());
             guestSub.patchValues(payload);
-            seance.ifPresent(updatedSeance -> updatedSeance.addGuestToSeance(guestSub) );
-            seance.ifPresent(updatedSeance -> seancesRepository.save(updatedSeance) );
+            seance.ifPresent(updatedSeance -> updatedSeance.addGuestToSeance(guestSub));
+            seance.ifPresent(updatedSeance -> seancesRepository.save(updatedSeance));
             return ResponseEntity.ok(seance);
         }
 
@@ -93,14 +105,14 @@ public class SeancesController {
         Optional<GuestSubscription> guestSub = guestsSubscriptionRepository.findById(guestSubId);
 
         if (guestSub.isPresent()) {
-            Optional<Seance> seance = seancesRepository.findById( guestSub.get().getSeanceId() );
+            Optional<Seance> seance = seancesRepository.findById(guestSub.get().getSeanceId());
 
-            if( seance.isPresent() ){
+            if (seance.isPresent()) {
                 Optional<GuestSubscription> guestToUnsubscribe = seance.get().getGuests().stream()
                         .filter(guest -> Objects.equals(guest.getId(), guestSubId))
                         .findFirst();
 
-                if( guestToUnsubscribe.isPresent() ) {
+                if (guestToUnsubscribe.isPresent()) {
                     seance.ifPresent(updatedSeance -> updatedSeance.removeGuestFromSeance(guestToUnsubscribe.get()));
                     seance.ifPresent(updatedSeance -> seancesRepository.save(updatedSeance));
                     return ResponseEntity.ok(seance);
@@ -133,7 +145,7 @@ public class SeancesController {
 
         if (seance.isPresent()) {
             seancesRepository.delete(seance.get());
-            return ResponseEntity.ok( "Seance with ID : " + seanceId + " deleting");
+            return ResponseEntity.ok("Seance with ID : " + seanceId + " deleting");
         }
         return ResponseEntity.badRequest().body("Error while updating Seance " + seanceId);
     }

@@ -14,5 +14,5 @@ import valejaco.crossfit.lahorie.models.SeancePlanning;
 public class PlanningsRequest {
 
         private JsonNullable<String> name = JsonNullable.undefined();
-        private JsonNullable<SeancePlanning> seancePlanningToAdd = JsonNullable.undefined();
+        private JsonNullable<Boolean> isActive = JsonNullable.undefined();
 }

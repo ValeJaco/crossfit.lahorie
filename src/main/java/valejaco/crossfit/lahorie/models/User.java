@@ -54,7 +54,7 @@ public class User implements UserDetails {
     private String password;
 
     @ManyToMany(mappedBy = "users")
-    @JsonIgnoreProperties("users")
+    @JsonIgnore
     private Set<Seance> seances = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)

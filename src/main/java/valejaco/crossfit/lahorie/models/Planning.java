@@ -22,11 +22,14 @@ public class Planning {
     @Column(unique = true)
     private Long id;
 
+    @Column(nullable = false)
+    private Boolean isActive = false;
     @Column(nullable = false, unique = true)
     private String name;
 
-    @OrderBy("dayInWeek ASC")
+    @OrderBy("dayOfWeek ASC")
     @OneToMany(
+            fetch = FetchType.EAGER,
             mappedBy = "planningId",
             cascade = CascadeType.ALL,
             orphanRemoval = true
@@ -35,7 +38,6 @@ public class Planning {
     private Set<SeancePlanning> seancesPlanning = new HashSet<>();
 
     public void addSeanceToPlanning( SeancePlanning seancePlanning ) { seancesPlanning.add( seancePlanning );}
-    public void removeSeanceFromPlanning( SeancePlanning seancePlanning) { seancesPlanning.remove( seancePlanning );}
 
     public void patchNameOnly( PlanningsRequest patch ) {
         if (patch.getName().isPresent()) {
@@ -47,8 +49,8 @@ public class Planning {
         if (patch.getName().isPresent()) {
             this.setName(patch.getName().get());
         }
-        if (patch.getSeancePlanningToAdd().isPresent() ) {
-            this.addSeanceToPlanning( patch.getSeancePlanningToAdd().get() );
+        if (patch.getIsActive().isPresent() ) {
+            this.setIsActive( patch.getIsActive().get() );
         }
     }
 }

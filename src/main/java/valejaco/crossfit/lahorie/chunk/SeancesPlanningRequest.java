@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.openapitools.jackson.nullable.JsonNullable;
 
-import java.time.OffsetTime;
+import java.sql.Time;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,10 +15,11 @@ import java.time.OffsetTime;
 public class SeancesPlanningRequest {
 
     private JsonNullable<Long> planningId = JsonNullable.undefined();
-    private JsonNullable<Long> dayInWeek = JsonNullable.undefined();
+    private JsonNullable<Long> dayOfWeek = JsonNullable.undefined();
     private JsonNullable<String> name = JsonNullable.undefined();
     private JsonNullable<Integer> maxSpot = JsonNullable.undefined();
-    private JsonNullable<OffsetTime> startTime = JsonNullable.undefined();
+    private JsonNullable<Integer> unsubcriptionHoursLimit = JsonNullable.undefined();
+    private JsonNullable<Time> startTime = JsonNullable.undefined();
     private JsonNullable<Integer> duration = JsonNullable.undefined();
     private JsonNullable<String> location = JsonNullable.undefined();
     private JsonNullable<Long> coachId = JsonNullable.undefined();

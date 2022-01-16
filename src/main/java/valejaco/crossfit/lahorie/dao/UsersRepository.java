@@ -15,5 +15,4 @@ public interface UsersRepository extends JpaRepository<User, Long> {
             "OR UPPER( CONCAT( u.lastname , ' ' , u.forename ) ) like UPPER( CONCAT('%',?1,'%') ) "+
             "order by u.forename, u.lastname")
     List<User> searchUsersByName(String searchedName );
-
 }

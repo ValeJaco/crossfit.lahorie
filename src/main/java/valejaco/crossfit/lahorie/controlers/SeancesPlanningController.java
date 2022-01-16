@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import valejaco.crossfit.lahorie.chunk.PlanningsRequest;
+import valejaco.crossfit.lahorie.chunk.SeancesPlanningRequest;
 import valejaco.crossfit.lahorie.dao.PlanningRepository;
 import valejaco.crossfit.lahorie.dao.SeancesPlanningRepository;
 import valejaco.crossfit.lahorie.models.Planning;
@@ -28,19 +29,38 @@ public class SeancesPlanningController {
         if (planning.isPresent()) {
             return ResponseEntity.ok(planning.get());
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.badRequest().body("No planning exists with ID " + planningId);
+    }
+
+    @GetMapping("/plannings")
+    public ResponseEntity<?> getPlanings() {
+        return ResponseEntity.ok(planningRepository.findAll());
     }
 
     @PostMapping("/plannings")
     public ResponseEntity<?> createPlanning( @RequestBody PlanningsRequest payload) {
+
         Planning planning = new Planning();
         planning.patchNameOnly(payload);
-        planningRepository.save(planning);
-        return ResponseEntity.ok(planning);
+
+        Planning planningWithName = planningRepository.findByName(planning.getName());
+
+        if( planningWithName == null ){
+            planningRepository.save(planning);
+            return ResponseEntity.ok(planning);
+        }
+
+        return ResponseEntity.badRequest().body("Planning already exists with name : " + planning.getName());
     }
 
     @PatchMapping("/plannings/{planningId}")
-    public ResponseEntity<?> addSeanceToPlanning(@PathVariable Long planningId, @RequestBody PlanningsRequest payload) {
+    public ResponseEntity<?> patchPlanning(@PathVariable Long planningId, @RequestBody PlanningsRequest payload) {
+
+        if( payload.getIsActive().isPresent() ){
+            if( payload.getIsActive().get() ){
+                this.inactiveAllPlanning();
+            }
+        }
 
         Optional<Planning> planning = planningRepository.findById(planningId);
         if( planning.isPresent() ){
@@ -52,39 +72,68 @@ public class SeancesPlanningController {
         return ResponseEntity.badRequest().body("Error while updating planning " + planningId);
     }
 
-    @DeleteMapping("/plannings/seances/{seancePlanningId}")
-    public ResponseEntity<?> addSeanceToPlanning(@PathVariable Long seancePlanningId) {
+    @DeleteMapping("/plannings/{planningId}")
+    public ResponseEntity<?> deletePlanning(@PathVariable Long planningId) {
+
+        Optional<Planning> planning = planningRepository.findById(planningId);
+        if( planning.isPresent() ){
+            planningRepository.delete(planning.get());
+            return ResponseEntity.ok( "Planning deleted for ID : " + planningId);
+        }
+
+        return ResponseEntity.badRequest().body("Error while deleting planning " + planningId);
+    }
+
+
+    @PostMapping("/plannings/seances/")
+    public ResponseEntity<?> createSeanceForPlanning(@RequestBody SeancesPlanningRequest payload) {
+
+        SeancePlanning seancePlanning = new SeancePlanning();
+        seancePlanning.patchValues( payload );
+
+        if( seancePlanning.getPlanningId() > 0 ){
+
+            Optional<Planning> planning = planningRepository.findById(seancePlanning.getPlanningId());
+            if( planning.isPresent() ){
+                planning.get().addSeanceToPlanning(seancePlanning);
+                seancesPlanningRepository.save(seancePlanning);
+                planningRepository.save(planning.get());
+                return ResponseEntity.ok(seancePlanning);
+            }
+        }
+
+        return ResponseEntity.badRequest().body("Error while creating seancePlanning for planing ID : " + seancePlanning.getPlanningId());
+    }
+
+    @PatchMapping("/plannings/seances/{seancePlanningId}")
+    public ResponseEntity<?> patchSeanceFromPlanning(@PathVariable Long seancePlanningId, @RequestBody SeancesPlanningRequest payload) {
 
         Optional<SeancePlanning> seancePlanning = seancesPlanningRepository.findById(seancePlanningId);
         if( seancePlanning.isPresent() ){
-            seancesPlanningRepository.delete(seancePlanning.get());
-            return ResponseEntity.ok( "SeancePlanning deleted for ID : " + seancePlanningId );
+            seancePlanning.get().patchValues(payload);
+            seancesPlanningRepository.save(seancePlanning.get());
+            return ResponseEntity.ok( seancePlanning.get() );
         }
 
         return ResponseEntity.badRequest().body("Error while deleting seancePlanning " + seancePlanningId);
     }
 
-    /*@PatchMapping("/plannings/{planningId}")
-    public ResponseEntity<?> patchPlanning(@PathVariable Long planningId, @RequestBody GuestsRequest payload) {
+    @DeleteMapping("/plannings/seances/{seancePlanningId}")
+    public ResponseEntity<?> removeSeanceFromPlanning(@PathVariable Long seancePlanningId) {
 
-        Optional<GuestSubscription> guestSub = guestsSubscriptionRepository.findById(guestSubId);
-
-        if (guestSub.isPresent()) {
-            guestsSubscriptionRepository.save(guestSub.get());
-            return ResponseEntity.ok(guestSub.get());
+        Optional<SeancePlanning> seancePlanning = seancesPlanningRepository.findById(seancePlanningId);
+        if( seancePlanning.isPresent() ){
+            seancesPlanningRepository.delete(seancePlanning.get());
+            return ResponseEntity.ok( seancePlanning.get() );
         }
-        return ResponseEntity.badRequest().body("Error while updating guestSubscription " + guestSubId);
+
+        return ResponseEntity.badRequest().body("Error while deleting seancePlanning " + seancePlanningId);
     }
 
-    @PatchMapping("/plannings/seances/{seancePlanningId}")
-    public ResponseEntity<?> patchSeancePlanning(@PathVariable Long seancePlanningId, @RequestBody GuestsRequest payload) {
-
-        Optional<GuestSubscription> guestSub = guestsSubscriptionRepository.findById(guestSubId);
-
-        if (guestSub.isPresent()) {
-            guestsSubscriptionRepository.save(guestSub.get());
-            return ResponseEntity.ok(guestSub.get());
-        }
-        return ResponseEntity.badRequest().body("Error while updating guestSubscription " + guestSubId);
-    }*/
+    private void inactiveAllPlanning(){
+        this.planningRepository.findAll().forEach(planning -> {
+            planning.setIsActive(false);
+            this.planningRepository.save(planning);
+        });
+    }
 }

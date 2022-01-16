@@ -7,7 +7,7 @@ import lombok.Setter;
 import valejaco.crossfit.lahorie.chunk.SeancesPlanningRequest;
 
 import javax.persistence.*;
-import java.time.OffsetTime;
+import java.sql.Time;
 
 @Entity
 @Getter
@@ -21,34 +21,40 @@ public class SeancePlanning {
     @Column(unique = true)
     private Long id;
 
+    private Long coachId;
     @JoinColumn(name="id")
-    private Long planningId;
     @Column(nullable = false)
-    private Long dayInWeek;
+    private Long dayOfWeek;
     @Column(nullable = false)
-    private String typeSemaine;
+    private Integer duration;
     @Column(nullable = false)
-    private String name;
+    private Integer unsubcriptionHoursLimit;
+    private String location;
     @Column(nullable = false)
     private Integer maxSpot;
     @Column(nullable = false)
-    private OffsetTime startTime;
+    private String name;
     @Column(nullable = false)
-    private Integer duration;
-
-    private String location;
-    private Long coachId;
+    private Long planningId;
+    @Column(nullable = false)
+    private Time startTime;
 
     public void patchValues( SeancesPlanningRequest patch ) {
 
-        if (patch.getDayInWeek().isPresent()) {
-            this.setDayInWeek(patch.getDayInWeek().get());
+        if (patch.getPlanningId().isPresent()) {
+            this.setPlanningId(patch.getPlanningId().get());
+        }
+        if (patch.getDayOfWeek().isPresent()) {
+            this.setDayOfWeek(patch.getDayOfWeek().get());
         }
         if (patch.getName().isPresent()) {
             this.setName(patch.getName().get());
         }
         if (patch.getMaxSpot().isPresent()) {
             this.setMaxSpot(patch.getMaxSpot().get());
+        }
+        if (patch.getUnsubcriptionHoursLimit().isPresent()) {
+            this.setUnsubcriptionHoursLimit(patch.getUnsubcriptionHoursLimit().get());
         }
         if (patch.getStartTime().isPresent()) {
             this.setStartTime(patch.getStartTime().get());
