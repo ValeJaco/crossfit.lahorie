@@ -1,36 +1,34 @@
 package valejaco.crossfit.lahorie.controlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import valejaco.crossfit.lahorie.chunk.UsersRequest;
 import valejaco.crossfit.lahorie.dao.RolesRepository;
-import valejaco.crossfit.lahorie.dao.SeancesRepository;
 import valejaco.crossfit.lahorie.dao.UsersRepository;
 import valejaco.crossfit.lahorie.models.Role;
-import valejaco.crossfit.lahorie.models.Seance;
 import valejaco.crossfit.lahorie.models.User;
 
-import java.time.OffsetDateTime;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
+@PropertySource("classpath:constant.properties")
 public class UsersController {
 
     @Autowired
     private UsersRepository usersRepository;
 
     @Autowired
-    private SeancesRepository seancesRepository;
-
-    @Autowired
     private RolesRepository rolesRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private Environment env;
 
     @GetMapping("/users")
     public ResponseEntity<?> getUsersList() {
@@ -59,7 +57,7 @@ public class UsersController {
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@RequestBody UsersRequest payload) {
         User newUser = new User();
-        newUser.setPassword(passwordEncoder.encode("lala"));
+        newUser.setPassword(passwordEncoder.encode( env.getProperty("default.password") ));
         updateAndSaveUser(newUser, payload);
         return ResponseEntity.ok(newUser);
     }

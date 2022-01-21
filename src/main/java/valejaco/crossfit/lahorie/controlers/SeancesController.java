@@ -36,8 +36,14 @@ public class SeancesController {
     private UsersWaitingRepository usersWaitingRepository;
 
     @GetMapping("/incomingSeances/{userId}")
-    public ResponseEntity<?> getIncommingSeancesForUser(@PathVariable Long userId) {
-        List<Seance> seanceList = seancesRepository.findByStartDateGreaterThanEqualAndUsers_IdOrderByStartDateAsc(OffsetDateTime.now(), userId);
+    public ResponseEntity<?> getIncommingSeancesForUser(
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSz") OffsetDateTime startDate,
+            @PathVariable Long userId) {
+        List<Seance> seanceList = seancesRepository.findByStartDateGreaterThanEqualAndUsers_IdOrderByStartDateAsc(startDate, userId);
+
+        // + Séances en file d'attente
+        seanceList.addAll( getWaitingSeanceListForUser(startDate,userId) );
+
         return ResponseEntity.ok(seanceList);
     }
 
@@ -145,7 +151,7 @@ public class SeancesController {
 
         if (seance.isPresent()) {
             seancesRepository.delete(seance.get());
-            return ResponseEntity.ok("Seance with ID : " + seanceId + " deleting");
+            return ResponseEntity.ok(seance.get());
         }
         return ResponseEntity.badRequest().body("Error while updating Seance " + seanceId);
     }
@@ -215,6 +221,10 @@ public class SeancesController {
         Integer nbUser = seance.getUsers().size();
         Integer nbGuest = guestsSubscriptionRepository.countBySeanceId(seance.getId()).orElse(0);
         return nbUser + nbGuest;
+    }
+
+    private List<Seance> getWaitingSeanceListForUser(OffsetDateTime startDate, Long usersId){
+        return seancesRepository.findByStartDateGreaterThanEqualAndUsersWaiting_userIdOrderByStartDateAsc(startDate,usersId);
     }
 
 }

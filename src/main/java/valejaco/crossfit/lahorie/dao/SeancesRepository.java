@@ -10,6 +10,9 @@ public interface SeancesRepository extends JpaRepository<Seance, Long> {
 
     List<Seance> findAllByStartDateGreaterThanEqualAndStartDateLessThanEqualOrderByStartDateAsc(OffsetDateTime startDate , OffsetDateTime endDate);
 
-    List<Seance> findByStartDateGreaterThanEqualAndUsers_IdOrderByStartDateAsc(OffsetDateTime startDate, Long users_id);
-    List<Seance> findByUsers_IdOrderByStartDateAsc(Long users_id);
+    List<Seance> findByStartDateGreaterThanEqualAndUsers_IdOrderByStartDateAsc(OffsetDateTime startDate, Long usersId);
+    List<Seance> findByUsers_IdOrderByStartDateAsc(Long usersId);
+
+    List<Seance> findByStartDateGreaterThanEqualAndUsersWaiting_userIdOrderByStartDateAsc(OffsetDateTime startDate, Long usersId);
+
 }
