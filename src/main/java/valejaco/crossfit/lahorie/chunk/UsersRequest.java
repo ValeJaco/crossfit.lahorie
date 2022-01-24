@@ -35,4 +35,7 @@ public class UsersRequest {
     private JsonNullable<Boolean> freeAccess = JsonNullable.undefined();
     private JsonNullable<String> badgeReference = JsonNullable.undefined();
 
+    private JsonNullable<String> old = JsonNullable.undefined();
+    private JsonNullable<String> confirm = JsonNullable.undefined();
+
 }

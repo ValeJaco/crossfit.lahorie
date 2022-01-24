@@ -1,23 +1,23 @@
 INSERT INTO USER (USERNAME, PASSWORD, FORENAME, LASTNAME)
-values ('user1@lala.fr', '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '1');
+values ( UPPER('user1@lala.fr'), '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '1');
 INSERT INTO USER (USERNAME, PASSWORD, FORENAME, LASTNAME)
-values ('user2@lala.fr', '$2a$10$kK/Il8IGJrbTijoNSmBVRu2GJpOPTHkh12YIEsTsjPHmF7ZLw5mnO', 'user', '2');
+values (UPPER('user2@lala.fr'), '$2a$10$kK/Il8IGJrbTijoNSmBVRu2GJpOPTHkh12YIEsTsjPHmF7ZLw5mnO', 'user', '2');
 INSERT INTO USER (USERNAME, PASSWORD, FORENAME, LASTNAME)
-values ('user3@lala.fr', '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '3');
+values (UPPER('user3@lala.fr'), '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '3');
 INSERT INTO USER (USERNAME, PASSWORD, FORENAME, LASTNAME)
-values ('user4@lala.fr', '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '4');
+values (UPPER('user4@lala.fr'), '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '4');
 INSERT INTO USER (USERNAME, PASSWORD, FORENAME, LASTNAME)
-values ('user5@lala.fr', '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '5');
+values (UPPER('user5@lala.fr'), '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '5');
 INSERT INTO USER (USERNAME, PASSWORD, FORENAME, LASTNAME)
-values ('user6@lala.fr', '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '6');
+values (UPPER('user6@lala.fr'), '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '6');
 INSERT INTO USER (USERNAME, PASSWORD, FORENAME, LASTNAME)
-values ('user7@lala.fr', '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '7');
+values (UPPER('user7@lala.fr'), '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '7');
 INSERT INTO USER (USERNAME, PASSWORD, FORENAME, LASTNAME)
-values ('user8@lala.fr', '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '8');
+values (UPPER('user8@lala.fr'), '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '8');
 INSERT INTO USER (USERNAME, PASSWORD, FORENAME, LASTNAME)
-values ('user9@lala.fr', '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '9');
+values (UPPER('user9@lala.fr'), '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'user', '9');
 INSERT INTO USER (USERNAME, PASSWORD, FORENAME, LASTNAME, SUBSCRIPTION_DATE, FREE_ACCESS)
-values ('Vale@lala.fr', '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'Valérian', 'Jacobi',
+values (UPPER('Vale@lala.fr'), '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'Valérian', 'Jacobi',
         CURRENT_DATE, true);
 INSERT INTO USER (USERNAME, PASSWORD, FORENAME, LASTNAME)
 values ('Ludo@lala.fr', '$2a$10$PKXm.mhK6wib2AySUciHReGjF7zc.Xz8ZX5jephttRVEyQtZtrDlq', 'Ludovic', 'Beyer');

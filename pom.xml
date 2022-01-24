@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>valejaco.crossfit.lahorie</groupId>
 	<artifactId>crossfit.lahorie</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>crossfit.lahorie</name>
 	<description>Crossfit La Horie</description>
 	<properties>

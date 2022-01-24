@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import valejaco.crossfit.lahorie.chunk.GuestsRequest;
 import valejaco.crossfit.lahorie.chunk.SeancesRequest;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@CrossOrigin("*")
 @RestController
 public class SeancesController {
     @Autowired
@@ -35,6 +37,7 @@ public class SeancesController {
     @Autowired
     private UsersWaitingRepository usersWaitingRepository;
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE','MEMBER')")
     @GetMapping("/incomingSeances/{userId}")
     public ResponseEntity<?> getIncommingSeancesForUser(
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSz") OffsetDateTime startDate,
@@ -47,11 +50,13 @@ public class SeancesController {
         return ResponseEntity.ok(seanceList);
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE','MEMBER')")
     @GetMapping("/allSeances/{userId}")
     public ResponseEntity<?> getAllSeancesForUser(@PathVariable Long userId) {
         return ResponseEntity.ok(seancesRepository.findByUsers_IdOrderByStartDateAsc(userId));
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE','MEMBER')")
     @GetMapping("/seances")
     public ResponseEntity<List<Seance>> getSeancesList(
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSz") OffsetDateTime startDate,
@@ -65,6 +70,7 @@ public class SeancesController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @GetMapping("/seances/{seanceId}")
     public ResponseEntity<?> getSeanceById(@PathVariable Long seanceId) {
 
@@ -77,6 +83,7 @@ public class SeancesController {
         return ResponseEntity.notFound().build();
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @PostMapping("/seances/guests")
     public ResponseEntity<?> addGuestToSeance(@RequestBody GuestsRequest payload) {
 
@@ -93,6 +100,7 @@ public class SeancesController {
         return ResponseEntity.badRequest().body("Error while creating guestSubscription");
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @PatchMapping("/seances/guests/{guestSubId}")
     public ResponseEntity<?> PatchGuest(@PathVariable Long guestSubId, @RequestBody GuestsRequest payload) {
 
@@ -105,6 +113,7 @@ public class SeancesController {
         return ResponseEntity.badRequest().body("Error while updating guestSubscription " + guestSubId);
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @DeleteMapping("/seances/guests/{guestSubId}")
     public ResponseEntity<?> RemoveGuestFromSeance(@PathVariable Long guestSubId) {
 
@@ -128,6 +137,7 @@ public class SeancesController {
         return ResponseEntity.badRequest().body("Error while deleting guestSubscription " + guestSubId);
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @PostMapping("/seances")
     public ResponseEntity<?> createSeance(@RequestBody SeancesRequest payload) {
 
@@ -135,6 +145,7 @@ public class SeancesController {
         return ResponseEntity.ok(updateAndSaveSeance(seance, payload));
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @PatchMapping("/seances/{seanceId}")
     public ResponseEntity<?> patchSeance(@PathVariable Long seanceId, @RequestBody SeancesRequest payload) {
         Optional<Seance> seance = seancesRepository.findById(seanceId);
@@ -145,6 +156,7 @@ public class SeancesController {
         return ResponseEntity.badRequest().body("Error while updating Seance " + seanceId);
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @DeleteMapping("/seances/{seanceId}")
     public ResponseEntity<?> deleteSeance(@PathVariable Long seanceId) {
         Optional<Seance> seance = seancesRepository.findById(seanceId);

@@ -1,0 +1,30 @@
+server:
+  ssl:
+    key-store: /merge/keyStore.p12
+    key-store-password: ValeJaco0409!
+    key-store-type: pkcs12
+    key-password: ValeJaco0409!
+    enabled: true
+  port: 8443
+
+spring:
+  h2:
+   console.enabled: true
+  sql:
+   init.platform: h2
+  datasource:
+   url: jdbc:h2:mem:cflh
+  jpa :
+    defer-datasource-initialization: true
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        format_sql: true
+
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        SQL: DEBUG
+#        type: TRACE
+

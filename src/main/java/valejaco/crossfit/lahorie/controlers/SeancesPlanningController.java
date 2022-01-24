@@ -2,6 +2,7 @@ package valejaco.crossfit.lahorie.controlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import valejaco.crossfit.lahorie.chunk.PlanningsRequest;
 import valejaco.crossfit.lahorie.chunk.SeancesPlanningRequest;
@@ -12,6 +13,7 @@ import valejaco.crossfit.lahorie.models.SeancePlanning;
 
 import java.util.Optional;
 
+@CrossOrigin("*")
 @RestController
 public class SeancesPlanningController {
 
@@ -21,6 +23,7 @@ public class SeancesPlanningController {
     @Autowired
     private PlanningRepository planningRepository;
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @GetMapping("/plannings/{planningId}")
     public ResponseEntity<?> getPlaningById(@PathVariable Long planningId) {
 
@@ -32,11 +35,13 @@ public class SeancesPlanningController {
         return ResponseEntity.badRequest().body("No planning exists with ID " + planningId);
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @GetMapping("/plannings")
     public ResponseEntity<?> getPlanings() {
         return ResponseEntity.ok(planningRepository.findAll());
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @PostMapping("/plannings")
     public ResponseEntity<?> createPlanning( @RequestBody PlanningsRequest payload) {
 
@@ -53,6 +58,7 @@ public class SeancesPlanningController {
         return ResponseEntity.badRequest().body("Planning already exists with name : " + planning.getName());
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @PatchMapping("/plannings/{planningId}")
     public ResponseEntity<?> patchPlanning(@PathVariable Long planningId, @RequestBody PlanningsRequest payload) {
 
@@ -72,6 +78,7 @@ public class SeancesPlanningController {
         return ResponseEntity.badRequest().body("Error while updating planning " + planningId);
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @DeleteMapping("/plannings/{planningId}")
     public ResponseEntity<?> deletePlanning(@PathVariable Long planningId) {
 
@@ -85,6 +92,7 @@ public class SeancesPlanningController {
     }
 
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @PostMapping("/plannings/seances/")
     public ResponseEntity<?> createSeanceForPlanning(@RequestBody SeancesPlanningRequest payload) {
 
@@ -105,6 +113,7 @@ public class SeancesPlanningController {
         return ResponseEntity.badRequest().body("Error while creating seancePlanning for planing ID : " + seancePlanning.getPlanningId());
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @PatchMapping("/plannings/seances/{seancePlanningId}")
     public ResponseEntity<?> patchSeanceFromPlanning(@PathVariable Long seancePlanningId, @RequestBody SeancesPlanningRequest payload) {
 
@@ -118,6 +127,7 @@ public class SeancesPlanningController {
         return ResponseEntity.badRequest().body("Error while deleting seancePlanning " + seancePlanningId);
     }
 
+    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @DeleteMapping("/plannings/seances/{seancePlanningId}")
     public ResponseEntity<?> removeSeanceFromPlanning(@PathVariable Long seancePlanningId) {
 

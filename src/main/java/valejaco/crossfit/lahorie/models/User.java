@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -111,7 +112,7 @@ public class User implements UserDetails {
             this.setSubscriptionDate(patch.getSubscriptionDate().get());
         }
         if (patch.getUsername().isPresent()) {
-            this.setUsername(patch.getUsername().get());
+            this.setUsername(patch.getUsername().get().toUpperCase(Locale.ROOT));
         }
         if (patch.getUseSessionNotebook().isPresent()){
             this.setUseSessionNotebook(patch.getUseSessionNotebook().get());

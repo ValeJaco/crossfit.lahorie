@@ -13,8 +13,11 @@ import valejaco.crossfit.lahorie.models.User;
 import valejaco.crossfit.lahorie.services.MyUserDetailsService;
 import valejaco.crossfit.lahorie.util.JwtUtil;
 
+import java.util.Locale;
+
+@CrossOrigin("*")
 @RestController
-public class HelloResource {
+public class AuthController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -25,24 +28,22 @@ public class HelloResource {
     @Autowired
     private JwtUtil jwtTokenUtil;
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello Other World";
-    }
-
     @PostMapping(value = "/authenticate" )
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) {
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()
+                    new UsernamePasswordAuthenticationToken(
+                            authenticationRequest.getUsername().toUpperCase(Locale.ROOT),
+                            authenticationRequest.getPassword()
                     ));
+
+            final User user = userDetailsService.loadUserByUsername(authenticationRequest.getUsername().toUpperCase(Locale.ROOT));
+            final String jwt = jwtTokenUtil.generateToken(user);
+
+            return ResponseEntity.ok(new AuthenticationResponse(jwt));
+
         } catch (BadCredentialsException e) {
-            throw new Exception("Incorrect username or password");
+            return ResponseEntity.badRequest().body("Incorrect username or password");
         }
-
-        final User user = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String jwt = jwtTokenUtil.generateToken(user);
-
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
 }
