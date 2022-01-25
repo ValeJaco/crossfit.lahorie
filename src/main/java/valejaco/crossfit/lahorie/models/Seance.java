@@ -32,7 +32,7 @@ public class Seance {
     private String location;
     private Long coachId;
     @Column(nullable = false)
-    private Integer unsubcriptionHoursLimit;
+    private Integer unsubscriptionHoursLimit;
 
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -96,8 +96,8 @@ public class Seance {
         if (patch.getDuration().isPresent()) {
             this.setDuration(patch.getDuration().get());
         }
-        if (patch.getUnsubcriptionHoursLimit().isPresent()) {
-            this.setUnsubcriptionHoursLimit(patch.getUnsubcriptionHoursLimit().get());
+        if (patch.getUnsubscriptionHoursLimit().isPresent()) {
+            this.setUnsubscriptionHoursLimit(patch.getUnsubscriptionHoursLimit().get());
         }
         if (patch.getLocation().isPresent()) {
             this.setLocation(patch.getLocation().get());
@@ -110,7 +110,7 @@ public class Seance {
     public void seancePlanningToSeance(SeancePlanning seancePlanning) {
         this.coachId = seancePlanning.getCoachId();
         this.duration = seancePlanning.getDuration();
-        this.unsubcriptionHoursLimit = seancePlanning.getDuration();
+        this.unsubscriptionHoursLimit = seancePlanning.getDuration();
         this.name = seancePlanning.getName();
         this.maxSpot = seancePlanning.getMaxSpot();
         this.location = seancePlanning.getLocation();

@@ -145,7 +145,7 @@ public class SeancesController {
         return ResponseEntity.ok(updateAndSaveSeance(seance, payload));
     }
 
-    @PreAuthorize("hasAnyRole('COACH','OFFICE')")
+    @PreAuthorize("hasAnyRole('COACH','OFFICE','MEMBER')")
     @PatchMapping("/seances/{seanceId}")
     public ResponseEntity<?> patchSeance(@PathVariable Long seanceId, @RequestBody SeancesRequest payload) {
         Optional<Seance> seance = seancesRepository.findById(seanceId);

@@ -15,7 +15,7 @@ public class SeancesRequest {
     private JsonNullable<Integer> maxSpot = JsonNullable.undefined();
     private JsonNullable<OffsetDateTime> startDate = JsonNullable.undefined();
     private JsonNullable<Integer> duration = JsonNullable.undefined();
-    private JsonNullable<Integer> unsubcriptionHoursLimit = JsonNullable.undefined();
+    private JsonNullable<Integer> unsubscriptionHoursLimit = JsonNullable.undefined();
     private JsonNullable<String> location = JsonNullable.undefined();
     private JsonNullable<Long> coachId = JsonNullable.undefined();
     private JsonNullable<Long> userToAddId = JsonNullable.undefined();

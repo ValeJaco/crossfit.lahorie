@@ -28,7 +28,7 @@ public class SeancePlanning {
     @Column(nullable = false)
     private Integer duration;
     @Column(nullable = false)
-    private Integer unsubcriptionHoursLimit;
+    private Integer unsubscriptionHoursLimit;
     private String location;
     @Column(nullable = false)
     private Integer maxSpot;
@@ -53,8 +53,8 @@ public class SeancePlanning {
         if (patch.getMaxSpot().isPresent()) {
             this.setMaxSpot(patch.getMaxSpot().get());
         }
-        if (patch.getUnsubcriptionHoursLimit().isPresent()) {
-            this.setUnsubcriptionHoursLimit(patch.getUnsubcriptionHoursLimit().get());
+        if (patch.getUnsubscriptionHoursLimit().isPresent()) {
+            this.setUnsubscriptionHoursLimit(patch.getUnsubscriptionHoursLimit().get());
         }
         if (patch.getStartTime().isPresent()) {
             this.setStartTime(patch.getStartTime().get());

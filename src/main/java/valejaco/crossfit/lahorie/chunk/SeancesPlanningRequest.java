@@ -18,7 +18,7 @@ public class SeancesPlanningRequest {
     private JsonNullable<Long> dayOfWeek = JsonNullable.undefined();
     private JsonNullable<String> name = JsonNullable.undefined();
     private JsonNullable<Integer> maxSpot = JsonNullable.undefined();
-    private JsonNullable<Integer> unsubcriptionHoursLimit = JsonNullable.undefined();
+    private JsonNullable<Integer> unsubscriptionHoursLimit = JsonNullable.undefined();
     private JsonNullable<Time> startTime = JsonNullable.undefined();
     private JsonNullable<Integer> duration = JsonNullable.undefined();
     private JsonNullable<String> location = JsonNullable.undefined();

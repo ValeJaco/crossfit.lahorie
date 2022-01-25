@@ -59,11 +59,9 @@ public class UsersController {
     @GetMapping("/users/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable Long userId) {
         Optional<User> user = usersRepository.findById(userId);
-
         if (user.isPresent()) {
             return ResponseEntity.ok(user.get());
         }
-
         return ResponseEntity.badRequest().body("Error NOT EXISTING User for ID : " + userId);
     }
 
@@ -115,7 +113,6 @@ public class UsersController {
             updateAndSaveUser(user.get(), payload);
             return ResponseEntity.ok(user.get());
         }
-
         return ResponseEntity.badRequest().body("Error while patching User " + userId);
     }
 
