@@ -12,6 +12,7 @@ import valejaco.crossfit.lahorie.models.SeancePlanning;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Calendar;
+import java.util.Locale;
 
 @Component
 public class seancesCreationTask {
@@ -22,28 +23,26 @@ public class seancesCreationTask {
     @Autowired
     private SeancesRepository seancesRepository;
 
-   //@Scheduled(fixedDelay = 30000)
+    // @Scheduled(fixedDelay = 30000)
     // Tous les dimanches à 23h55
     @Scheduled(cron = "12 51 09 * * 7", zone = "Europe/Paris")
     public void perform() {
 
-        int week = 2;
-        int year = 2022;
-
-        System.out.println( OffsetDateTime.now() );
-        System.out.println( "Création des séances pour la semaine " + week + " de l'année : " + year);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.set(Calendar.WEEK_OF_YEAR, week);
-        calendar.set(Calendar.YEAR, year);
-
-        // premier jour de la semaine
-        OffsetDateTime referenceDate = calendar.getTime().toInstant().atOffset(ZoneOffset.UTC);
         // Récupération du planning actif
         Planning planning = planningRepository.findByIsActive(true);
 
         if (planning != null) {
+
+            Calendar calendar = Calendar.getInstance(Locale.FRANCE);
+            int weekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+            int currentYear = calendar.get(Calendar.YEAR);
+
+            calendar.clear();
+            calendar.set(Calendar.YEAR, currentYear);
+            calendar.set(Calendar.WEEK_OF_YEAR, weekOfYear );
+            // premier jour de la semaine
+            OffsetDateTime referenceDate = calendar.getTime().toInstant().atOffset(ZoneOffset.UTC).plusWeeks(planning.getPostponedWeekNumber());
+
             planning.getSeancesPlanning().forEach(seancePlanning -> {
                 OffsetDateTime creationDate = this.getDateForCreation(referenceDate, seancePlanning);
                 Seance seanceToCreate = new Seance();

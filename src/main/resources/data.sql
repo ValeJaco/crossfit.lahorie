@@ -94,7 +94,7 @@ values (2, 10);
 INSERT INTO SEANCE_USERS
 values (1, 12);
 
-INSERT INTO PLANNING
+INSERT INTO PLANNING (ID, IS_ACTIVE , NAME)
 values (null, true, 'lala');
 INSERT INTO SEANCE_PLANNING
 values (null, null, 0, 90, null, 12, 'Dimanche 1', 1, '18:30:00', 13);

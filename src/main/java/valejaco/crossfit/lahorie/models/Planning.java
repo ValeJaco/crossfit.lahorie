@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import valejaco.crossfit.lahorie.chunk.PlanningsRequest;
 
 import javax.persistence.*;
@@ -26,6 +27,9 @@ public class Planning {
     private Boolean isActive = false;
     @Column(nullable = false, unique = true)
     private String name;
+
+    @Column(nullable = false,columnDefinition = "integer default 6")
+    private Integer postponedWeekNumber;
 
     @OrderBy("dayOfWeek ASC")
     @OneToMany(
@@ -51,6 +55,9 @@ public class Planning {
         }
         if (patch.getIsActive().isPresent() ) {
             this.setIsActive( patch.getIsActive().get() );
+        }
+        if (patch.getPostponedWeekNumber().isPresent() ) {
+            this.setPostponedWeekNumber( patch.getPostponedWeekNumber().get() );
         }
     }
 }

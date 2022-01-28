@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.openapitools.jackson.nullable.JsonNullable;
-import valejaco.crossfit.lahorie.models.SeancePlanning;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,4 +14,5 @@ public class PlanningsRequest {
 
         private JsonNullable<String> name = JsonNullable.undefined();
         private JsonNullable<Boolean> isActive = JsonNullable.undefined();
+        private JsonNullable<Integer> postponedWeekNumber = JsonNullable.undefined();
 }
