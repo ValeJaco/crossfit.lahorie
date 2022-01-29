@@ -71,6 +71,7 @@ public class UsersController {
         User newUser = new User();
         newUser.setPassword(passwordEncoder.encode( env.getProperty("default.password") ));
         updateAndSaveUser(newUser, payload);
+
         return ResponseEntity.ok(newUser);
     }
 
@@ -95,7 +96,6 @@ public class UsersController {
     @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @PatchMapping("/users/resetPwd/{userId}")
     public ResponseEntity<?> resetUserPassword(@PathVariable Long userId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Optional<User> user = usersRepository.findById(userId);
         if (user.isPresent() ) {
             user.get().setPassword(passwordEncoder.encode( env.getProperty("default.password") ));

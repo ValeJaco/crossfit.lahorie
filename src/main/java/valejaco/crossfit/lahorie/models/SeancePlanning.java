@@ -22,13 +22,11 @@ public class SeancePlanning {
     private Long id;
 
     private Long coachId;
-    @JoinColumn(name="id")
+    @JoinColumn(name = "id")
     @Column(nullable = false)
     private Long dayOfWeek;
     @Column(nullable = false)
     private Integer duration;
-    @Column(nullable = false)
-    private Integer unsubscriptionHoursLimit;
     private String location;
     @Column(nullable = false)
     private Integer maxSpot;
@@ -36,10 +34,14 @@ public class SeancePlanning {
     private String name;
     @Column(nullable = false)
     private Long planningId;
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'ROLE_MEMBER'")
+    private String seanceType;
     @Column(nullable = false)
     private Time startTime;
+    @Column(nullable = false)
+    private Integer unsubscriptionHoursLimit;
 
-    public void patchValues( SeancesPlanningRequest patch ) {
+    public void patchValues(SeancesPlanningRequest patch) {
 
         if (patch.getPlanningId().isPresent()) {
             this.setPlanningId(patch.getPlanningId().get());
@@ -67,6 +69,9 @@ public class SeancePlanning {
         }
         if (patch.getCoachId().isPresent()) {
             this.setCoachId(patch.getCoachId().get());
+        }
+        if (patch.getSeanceType().isPresent()) {
+            this.setSeanceType(patch.getSeanceType().get());
         }
     }
 }

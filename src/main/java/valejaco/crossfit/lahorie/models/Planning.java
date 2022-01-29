@@ -28,7 +28,7 @@ public class Planning {
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false,columnDefinition = "integer default 6")
+    @Column(nullable = false,columnDefinition = "integer default 4")
     private Integer postponedWeekNumber;
 
     @OrderBy("dayOfWeek ASC")

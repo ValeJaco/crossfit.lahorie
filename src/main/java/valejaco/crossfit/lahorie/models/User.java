@@ -112,7 +112,7 @@ public class User implements UserDetails {
             this.setSubscriptionDate(patch.getSubscriptionDate().get());
         }
         if (patch.getUsername().isPresent()) {
-            this.setUsername(patch.getUsername().get().toUpperCase(Locale.ROOT));
+            this.setUsername(patch.getUsername().get().toLowerCase(Locale.ROOT));
         }
         if (patch.getUseSessionNotebook().isPresent()){
             this.setUseSessionNotebook(patch.getUseSessionNotebook().get());

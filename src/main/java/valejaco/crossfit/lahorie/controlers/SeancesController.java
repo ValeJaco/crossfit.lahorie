@@ -5,6 +5,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import valejaco.crossfit.lahorie.chunk.GuestsRequest;
 import valejaco.crossfit.lahorie.chunk.SeancesRequest;
@@ -21,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CrossOrigin("*")
 @RestController
@@ -45,7 +49,7 @@ public class SeancesController {
         List<Seance> seanceList = seancesRepository.findByStartDateGreaterThanEqualAndUsers_IdOrderByStartDateAsc(startDate, userId);
 
         // + Séances en file d'attente
-        seanceList.addAll( getWaitingSeanceListForUser(startDate,userId) );
+        seanceList.addAll(getWaitingSeanceListForUser(startDate, userId));
 
         return ResponseEntity.ok(seanceList);
     }
@@ -62,11 +66,24 @@ public class SeancesController {
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSz") OffsetDateTime startDate,
             @RequestParam(required = false, defaultValue = "15") Long daysToAdd) {
 
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        List<String> loggedUserRoles = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        List<Seance> seances = null;
+
         if (startDate != null) {
             OffsetDateTime maxDate = startDate.plusDays(daysToAdd);
-            return ResponseEntity.ok(seancesRepository.findAllByStartDateGreaterThanEqualAndStartDateLessThanEqualOrderByStartDateAsc(startDate, maxDate));
+            seances = seancesRepository.findAllByStartDateGreaterThanEqualAndStartDateLessThanEqualOrderByStartDateAsc(startDate, maxDate);
         } else {
-            return ResponseEntity.ok(seancesRepository.findAll((Sort.by(Sort.Direction.ASC, "startDate"))));
+            seances = seancesRepository.findAll((Sort.by(Sort.Direction.ASC, "startDate")));
+        }
+
+        if (loggedUserRoles.contains("ROLE_OFFICE")) {
+            return ResponseEntity.ok(seances);
+        } else {
+            return ResponseEntity.ok(seances.stream().filter(seance ->
+                    loggedUserRoles.contains(seance.getSeanceType())
+            ).collect(Collectors.toList()));
         }
     }
 
@@ -174,29 +191,69 @@ public class SeancesController {
         return seancesRepository.save(seance);
     }
 
+    private boolean addUserToSeance(Seance seance, Long userToAddId, boolean forceSubscription) {
+
+        if (getFreeSpotNumber(seance) < seance.getMaxSpot() || forceSubscription) {
+            Optional<User> userToAdd = usersRepository.findById(userToAddId);
+            userToAdd.ifPresent(seance::addUserToSeance);
+        } else {
+            this.subscribeToWaitingList(seance, userToAddId);
+        }
+        return true;
+    }
+
+    /**
+     * @return true only is user was subscribed to seance, and not to waiting queue.
+     */
+    private boolean removeUserFromSeance(Seance seance, Long userToRemoveId) {
+
+        if (isUserSubscribed(seance, userToRemoveId)) {
+            Optional<User> userToRemove = usersRepository.findById(userToRemoveId);
+            userToRemove.ifPresent(seance::removeUserFromSeance);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean removeUserFromWaitingList(Seance seance, Long userToRemoveId) {
+        if (isUSerSubscribedToWaitingList(seance, userToRemoveId)) {
+            this.unsubscribeFromWaitingList(seance, userToRemoveId);
+            return true;
+        }
+        return false;
+    }
+
+    private User switchFirstWaitingUserIfNeeded(Seance seance) {
+        if (seance.getUsersWaiting().size() > 0) {
+            Optional<User> userToSwitch = usersRepository.findById(seance.getUsersWaiting().stream().findFirst().get().getUserId());
+            if (userToSwitch.isPresent()) {
+                if (addUserToSeance(seance, userToSwitch.get().getId(), true)) {
+                    if (removeUserFromWaitingList(seance, userToSwitch.get().getId())) {
+                        return userToSwitch.get();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     private void updateUsers(Seance seance, SeancesRequest patch) {
 
         if (patch.getUserToAddId().isPresent()) {
-
-            if (getFreeSpotNumber(seance) < seance.getMaxSpot()) {
-                Optional<User> userToAdd = usersRepository.findById(patch.getUserToAddId().get());
-                userToAdd.ifPresent(seance::addUserToSeance);
-            } else {
-
-                this.subscribeToWaitingList(seance, patch.getUserToAddId().get());
-            }
+            addUserToSeance(seance, patch.getUserToAddId().get(), false);
         }
 
         if (patch.getUserToRemoveId().isPresent()) {
-            Optional<User> userToRemove = usersRepository.findById(patch.getUserToRemoveId().get());
-            userToRemove.ifPresent(seance::removeUserFromSeance);
-
-            try {
-                this.unsubscribeFromWaitingList(seance, patch.getUserToRemoveId().get());
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (removeUserFromSeance(seance, patch.getUserToRemoveId().get())) {
+                // on récupère le premier membre de la file d'attente et si il est inscrit, puis averti
+                User userToInform = switchFirstWaitingUserIfNeeded(seance);
+                if (userToInform != null) {
+                    // TODO send mail to userToInform
+                    System.out.println(userToInform);
+                }
+            } else {
+                removeUserFromWaitingList(seance, patch.getUserToRemoveId().get());
             }
-
         }
     }
 
@@ -214,16 +271,12 @@ public class SeancesController {
 
     private void subscribeToWaitingList(Seance seance, Long userId) {
 
-        boolean isUserAlreadySubscribed = seance.getUsers().stream().map(User::getId).filter(aLong -> Objects.equals(aLong, userId)).toArray().length > 0;
-
-        if (!isUserAlreadySubscribed) {
-
+        if (!isUserSubscribed(seance, userId) && !isUSerSubscribedToWaitingList(seance, userId)) {
             UserWaiting waitlistEntryToAdd = new UserWaiting();
             waitlistEntryToAdd.setSeanceId(seance.getId());
             waitlistEntryToAdd.setUserId(userId);
             waitlistEntryToAdd.setSubscriptionTime(OffsetDateTime.now());
             usersWaitingRepository.save(waitlistEntryToAdd);
-
             seance.addUserToWaitingSeance(waitlistEntryToAdd);
         }
     }
@@ -235,8 +288,17 @@ public class SeancesController {
         return nbUser + nbGuest;
     }
 
-    private List<Seance> getWaitingSeanceListForUser(OffsetDateTime startDate, Long usersId){
-        return seancesRepository.findByStartDateGreaterThanEqualAndUsersWaiting_userIdOrderByStartDateAsc(startDate,usersId);
+    private List<Seance> getWaitingSeanceListForUser(OffsetDateTime startDate, Long usersId) {
+        return seancesRepository.findByStartDateGreaterThanEqualAndUsersWaiting_userIdOrderByStartDateAsc(startDate, usersId);
+    }
+
+    private boolean isUserSubscribed(Seance seance, Long userId) {
+        return seance.getUsers().stream().map(User::getId).filter(aLong -> Objects.equals(aLong, userId)).toArray().length > 0;
+    }
+
+    private boolean isUSerSubscribedToWaitingList(Seance seance, Long userId) {
+
+        return seance.getUsersWaiting().stream().map(UserWaiting::getUserId).filter(aLong -> Objects.equals(aLong, userId)).toArray().length > 0;
     }
 
 }

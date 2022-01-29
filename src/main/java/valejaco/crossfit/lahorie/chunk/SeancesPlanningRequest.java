@@ -22,6 +22,7 @@ public class SeancesPlanningRequest {
     private JsonNullable<Time> startTime = JsonNullable.undefined();
     private JsonNullable<Integer> duration = JsonNullable.undefined();
     private JsonNullable<String> location = JsonNullable.undefined();
+    private JsonNullable<String> seanceType = JsonNullable.undefined();
     private JsonNullable<Long> coachId = JsonNullable.undefined();
     private JsonNullable<Long> userToAddId = JsonNullable.undefined();
     private JsonNullable<Long> userToRemoveId = JsonNullable.undefined();

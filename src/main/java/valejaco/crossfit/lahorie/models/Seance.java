@@ -28,6 +28,8 @@ public class Seance {
     private OffsetDateTime startDate;
     @Column(nullable = false)
     private Integer duration;
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'ROLE_MEMBER'")
+    private String seanceType;
 
     private String location;
     private Long coachId;
@@ -104,6 +106,9 @@ public class Seance {
         }
         if (patch.getCoachId().isPresent()) {
             this.setCoachId(patch.getCoachId().get());
+        }
+        if (patch.getSeanceType().isPresent()) {
+            this.setSeanceType(patch.getSeanceType().get());
         }
     }
 

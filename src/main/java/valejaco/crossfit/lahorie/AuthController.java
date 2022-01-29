@@ -35,11 +35,11 @@ public class AuthController {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            authenticationRequest.getUsername().toUpperCase(Locale.ROOT),
+                            authenticationRequest.getUsername().toLowerCase(Locale.ROOT),
                             authenticationRequest.getPassword()
                     ));
 
-            final User user = userDetailsService.loadUserByUsername(authenticationRequest.getUsername().toUpperCase(Locale.ROOT));
+            final User user = userDetailsService.loadUserByUsername(authenticationRequest.getUsername().toLowerCase(Locale.ROOT));
             final String jwt = jwtTokenUtil.generateToken(user);
 
             return ResponseEntity.ok(new AuthenticationResponse(jwt));
