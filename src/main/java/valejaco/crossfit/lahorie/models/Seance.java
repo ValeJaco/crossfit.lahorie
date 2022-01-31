@@ -119,5 +119,6 @@ public class Seance {
         this.name = seancePlanning.getName();
         this.maxSpot = seancePlanning.getMaxSpot();
         this.location = seancePlanning.getLocation();
+        this.seanceType = seancePlanning.getSeanceType();
     }
 }

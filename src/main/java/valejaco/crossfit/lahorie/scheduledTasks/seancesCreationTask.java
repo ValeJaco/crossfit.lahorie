@@ -12,6 +12,7 @@ import valejaco.crossfit.lahorie.models.SeancePlanning;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 @Component
@@ -25,33 +26,35 @@ public class seancesCreationTask {
 
     // @Scheduled(fixedDelay = 30000)
     // Tous les dimanches à 23h55
-    @Scheduled(cron = "12 51 09 * * 7", zone = "Europe/Paris")
+    @Scheduled(cron = "00 55 23 * * 7", zone = "Europe/Paris")
     public void perform() {
 
         // Récupération du planning actif
-        Planning planning = planningRepository.findByIsActive(true);
+        List<Planning> plannings = planningRepository.findByIsActive(true);
 
-        if (planning != null) {
+        plannings.forEach( planning -> {
+            if (planning != null) {
 
-            Calendar calendar = Calendar.getInstance(Locale.FRANCE);
-            int weekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
-            int currentYear = calendar.get(Calendar.YEAR);
+                Calendar calendar = Calendar.getInstance(Locale.FRANCE);
+                int weekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+                int currentYear = calendar.get(Calendar.YEAR);
 
-            calendar.clear();
-            calendar.set(Calendar.YEAR, currentYear);
-            calendar.set(Calendar.WEEK_OF_YEAR, weekOfYear );
-            // premier jour de la semaine
-            OffsetDateTime referenceDate = calendar.getTime().toInstant().atOffset(ZoneOffset.UTC).plusWeeks(planning.getPostponedWeekNumber());
+                calendar.clear();
+                calendar.set(Calendar.YEAR, currentYear);
+                calendar.set(Calendar.WEEK_OF_YEAR, weekOfYear );
+                // premier jour de la semaine
+                OffsetDateTime referenceDate = calendar.getTime().toInstant().atOffset(ZoneOffset.UTC).plusWeeks(planning.getPostponedWeekNumber());
 
-            planning.getSeancesPlanning().forEach(seancePlanning -> {
-                OffsetDateTime creationDate = this.getDateForCreation(referenceDate, seancePlanning);
-                Seance seanceToCreate = new Seance();
-                seanceToCreate.seancePlanningToSeance(seancePlanning);
-                seanceToCreate.setStartDate(creationDate);
-                System.out.println( "Création de la séance du : " + creationDate );
-                seancesRepository.save(seanceToCreate);
-            });
-        }
+                planning.getSeancesPlanning().forEach(seancePlanning -> {
+                    OffsetDateTime creationDate = this.getDateForCreation(referenceDate, seancePlanning);
+                    Seance seanceToCreate = new Seance();
+                    seanceToCreate.seancePlanningToSeance(seancePlanning);
+                    seanceToCreate.setStartDate(creationDate);
+                    System.out.println( "Création de la séance du : " + creationDate );
+                    seancesRepository.save(seanceToCreate);
+                });
+            }
+        });
     }
 
     private OffsetDateTime getDateForCreation(

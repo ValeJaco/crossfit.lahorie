@@ -25,7 +25,7 @@ public class SeancesPlanningController {
 
     @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @GetMapping("/plannings/{planningId}")
-    public ResponseEntity<?> getPlaningById(@PathVariable Long planningId) {
+    public ResponseEntity<?> getPlanningById(@PathVariable Long planningId) {
 
         Optional<Planning> planning = planningRepository.findById(planningId);
 
@@ -37,7 +37,7 @@ public class SeancesPlanningController {
 
     @PreAuthorize("hasAnyRole('COACH','OFFICE')")
     @GetMapping("/plannings")
-    public ResponseEntity<?> getPlanings() {
+    public ResponseEntity<?> getPlannings() {
         return ResponseEntity.ok(planningRepository.findAll());
     }
 
@@ -46,8 +46,7 @@ public class SeancesPlanningController {
     public ResponseEntity<?> createPlanning( @RequestBody PlanningsRequest payload) {
 
         Planning planning = new Planning();
-        planning.patchNameOnly(payload);
-
+        planning.patchValues(payload);
         Planning planningWithName = planningRepository.findByName(planning.getName());
 
         if( planningWithName == null ){
@@ -64,7 +63,8 @@ public class SeancesPlanningController {
 
         if( payload.getIsActive().isPresent() ){
             if( payload.getIsActive().get() ){
-                this.inactiveAllPlanning();
+                //TODO uncomment if only one planning must be active at one time
+                // this.inactiveAllPlanning();
             }
         }
 
@@ -110,7 +110,7 @@ public class SeancesPlanningController {
             }
         }
 
-        return ResponseEntity.badRequest().body("Error while creating seancePlanning for planing ID : " + seancePlanning.getPlanningId());
+        return ResponseEntity.badRequest().body("Error while creating seancePlanning for planning ID : " + seancePlanning.getPlanningId());
     }
 
     @PreAuthorize("hasAnyRole('COACH','OFFICE')")
